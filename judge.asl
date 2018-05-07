@@ -29,8 +29,8 @@ level(1).
 
 obstacles(10). //Numero de obstaculos a generar
 
-limitPoints(1,300). //Puntuacion a obtener para ganar un nivel
-limitPoints(2,300).
+limitPoints(1,50). //Puntuacion a obtener para ganar un nivel
+limitPoints(2,100).
 
 points(1,player1,0). //Puntuacion de cada jugador en cada nivel [ points(nivel,jugador,puntos) ]
 points(1,player2,0).

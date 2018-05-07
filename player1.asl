@@ -1,1622 +1,346 @@
-/// Agent player1 in project practica.mas2j
-
 /* Initial beliefs and rules */
+igual(X,Y,X,Y).	
+igualColor(X,Y,C,C):-datos(X,Y,C).
+datos(X,Y,Color,Tipo,Prop):- tablero(celda(X,Y,Prop),ficha(Color,Tipo)).
+fichaEspecial(X,Y):-datos(X,Y,_,Tipo,_) & (Tipo = ct | Tipo = co | Tipo = gs | Tipo = ip).
+esObstaculo(X,Y):-tablero(celda(X,Y,_),ficha(-1,_)).
+//Agrupaciones de 3
+grupo3FilA(X,Y,C,A,B) :- // #_#
+	size(N) & X-1 >= 0 & X+1 < N & datos(X-1,Y,C) & datos(X,Y,_) & datos(X+1,Y,C) &
+	not igual(X-1,Y,A,B) & not igual(X+1,Y,A,B).
+grupo3FilB(X,Y,C,A,B) :- // _##
+	size(N) & X+2 < N & datos(X+1,Y,C) & datos(X,Y,_) & datos(X+2,Y,C) &
+	not igual(X+1,Y,A,B) & not igual(X+2,Y,A,B).
+grupo3FilC(X,Y,C,A,B) :- // ##_
+	size(N) & X-2 >= 0 & datos(X-1,Y,C) & datos(X,Y,_) & datos(X-2,Y,C) &
+	not igual(X-1,Y,A,B) & not igual(X-2,Y,A,B).
+	
+grupo3ColA(X,Y,C,A,B) :- // #_# (ficha desde medio)
+	size(N) & Y-1 >= 0 & Y+1 < N & datos(X,Y-1,C) & datos(X,Y,_) & datos(X,Y+1,C) &
+	not igual(X,Y-1,A,B) & not igual(X,Y+1,A,B).
+grupo3ColB(X,Y,C,A,B) :- // _## (ficha desde medio)
+	size(N) & Y+2 < N & datos(X,Y+1,C) & datos(X,Y,_) & datos(X,Y+2,C) &
+	not igual(X,Y+1,A,B) & not igual(X,Y+2,A,B).
+grupo3ColC(X,Y,C,A,B) :- // #_# (ficha desde medio)
+	size(N) & Y-2 >= 0 & datos(X,Y-1,C) & datos(X,Y,_) & datos(X,Y-2,C) &
+	not igual(X,Y-1,A,B) & not igual(X,Y-2,A,B).
+//Con ficha especial
+grupo3FilAEspecial(X,Y,C,A,B) :- // #_#
+	size(N) & X-1 >= 0 & X+1 < N & datos(X-1,Y,C) & datos(X,Y,_) & datos(X+1,Y,C) &
+	not igual(X-1,Y,A,B) & not igual(X+1,Y,A,B)  & not igual(X,Y+1,A,B) & (fichaEspecial(X-1,Y) | fichaEspecial(X+1,Y) | fichaEspecial(A,B)).
+grupo3FilBEspecial(X,Y,C,A,B) :- // _##
+	size(N) & X+2 < N & datos(X+1,Y,C) & datos(X,Y,_) & datos(X+2,Y,C) &
+	not igual(X+1,Y,A,B) & not igual(X+2,Y,A,B) & (fichaEspecial(X+1,Y) | fichaEspecial(X+2,Y) | fichaEspecial(A,B)).
+grupo3FilCEspecial(X,Y,C,A,B) :- // ##_
+	size(N) & X-2 >= 0 & datos(X-1,Y,C) & datos(X,Y,_) & datos(X-2,Y,C) &
+	not igual(X-1,Y,A,B) & not igual(X-2,Y,A,B) & (fichaEspecial(X-1,Y) | fichaEspecial(X-2,Y) | fichaEspecial(A,B)).
+	
+grupo3ColAEspecial(X,Y,C,A,B) :- // #_# (ficha desde medio)
+	size(N) & Y-1 >= 0 & Y+1 < N & datos(X,Y-1,C) & datos(X,Y,_) & datos(X,Y+1,C) &
+	not igual(X,Y-1,A,B) & not igual(X,Y+1,A,B) & (fichaEspecial(X,Y-1) | fichaEspecial(X,Y+1) | fichaEspecial(A,B)).
+grupo3ColBEspecial(X,Y,C,A,B) :- // _## (ficha desde medio)
+	size(N) & Y+2 < N & datos(X,Y+1,C) & datos(X,Y,_) & datos(X,Y+2,C) &
+	not igual(X,Y+1,A,B) & not igual(X,Y+2,A,B) & (fichaEspecial(X,Y+1) | fichaEspecial(X,Y+2) | fichaEspecial(A,B)).
+grupo3ColCEspecial(X,Y,C,A,B) :- // #_# (ficha desde medio)
+	size(N) & Y-2 >= 0 & datos(X,Y-1,C) & datos(X,Y,_) & datos(X,Y-2,C) &
+	not igual(X,Y-1,A,B) & not igual(X,Y-2,A,B) & (fichaEspecial(X,Y-1) | fichaEspecial(X,Y-2) | fichaEspecial(A,B)).
+		
+//Agrupaciones de 4
+grupo4FilA(X,Y,C,A,B) :- // #_##
+	size(N) & X-1 >= 0 & X+2 < N & datos(X-1,Y,C) & datos(X,Y,_) & datos(X+1,Y,C) & datos(X+2,Y,C) &
+	not igual(X-1,Y,A,B) & not igual(X+1,Y,A,B) & not igual(X+2,Y,A,B).
+grupo4FilB(X,Y,C,A,B) :- // ##_#
+	size(N) & X-2 >= 0 & X+1 < N & datos(X-1,Y,C) & datos(X-2,Y,C) & datos(X,Y,_) & datos(X+1,Y,C) &
+	not igual(X-1,Y,A,B) & not igual(X-2,Y,A,B) & not igual(X+1,Y,A,B).	
+grupo4ColA(X,Y,C,A,B) :- // #_## (Vertical)
+	size(N) & Y-1 >= 0 & Y+2 < N & datos(X,Y-1,C) & datos(X,Y,_) & datos(X,Y+1,C) & datos(X,Y+2,C) &
+	not igual(X,Y-1,A,B) & not igual(X,Y+1,A,B) & not igual(X,Y+2,A,B).
+grupo4ColB(X,Y,C,A,B) :- // ##_# (Vertical)
+	size(N) & Y-2 >= 0 & Y+1 < N & datos(X,Y-1,C) & datos(X,Y-2,C) & datos(X,Y,_) & datos(X,Y+1,C) &
+	not igual(X,Y-1,A,B) & not igual(X,Y-2,A,B) & not igual(X,Y+1,A,B).
+//Con ficha especial
+grupo4FilAEspecial(X,Y,C,A,B) :- // #_##
+	size(N) & X-1 >= 0 & X+2 < N & datos(X-1,Y,C) & datos(X,Y,_) & datos(X+1,Y,C) & datos(X+2,Y,C) &
+	not igual(X-1,Y,A,B) & not igual(X+1,Y,A,B) & not igual(X+2,Y,A,B) &
+	(fichaEspecial(X-1,Y) | fichaEspecial(X+1,Y) | fichaEspecial(X+2,Y) | fichaEspecial(A,B)).
+grupo4FilBEspecial(X,Y,C,A,B) :- // ##_#
+	size(N) & X-2 >= 0 & X+1 < N & datos(X-1,Y,C) & datos(X-2,Y,C) & datos(X,Y,_) & datos(X+1,Y,C) &
+	not igual(X-1,Y,A,B) & not igual(X-2,Y,A,B) & not igual(X+1,Y,A,B) &
+	(fichaEspecial(X-1,Y) | fichaEspecial(X-1,Y) | fichaEspecial(X+1,Y) | fichaEspecial(A,B)).	
+grupo4ColAEspecial(X,Y,C,A,B) :- // #_## (Vertical)
+	size(N) & Y-1 >= 0 & Y+2 < N & datos(X,Y-1,C) & datos(X,Y,_) & datos(X,Y+1,C) & datos(X,Y+2,C) &
+	not igual(X,Y-1,A,B) & not igual(X,Y+1,A,B) & not igual(X,Y+2,A,B) &
+	(fichaEspecial(X,Y-1) | fichaEspecial(X,Y+1) | fichaEspecial(X,Y+2) | fichaEspecial(A,B)).
+grupo4ColBEspecial(X,Y,C,A,B) :- // ##_# (Vertical)
+	size(N) & Y-2 >= 0 & Y+1 < N & datos(X,Y-1,C) & datos(X,Y-2,C) & datos(X,Y,_) & datos(X,Y+1,C) &
+	not igual(X,Y-1,A,B) & not igual(X,Y-2,A,B) & not igual(X,Y+1,A,B) &
+	(fichaEspecial(X,Y-1) | fichaEspecial(X,Y-2) | fichaEspecial(X,Y+1) | fichaEspecial(A,B)).
+//Cuadrado	
+grupo4SquareA(X,Y,C,A,B) :- // hueco arriba-izquierda
+	size(N) & X+1 < N & Y+1 < N & datos(X,Y,_) & datos(X+1,Y,C) & datos(X,Y+1,C) & datos(X+1,Y+1,C) &
+	not igual(X+1,Y,A,B) & not igual(X,Y+1,A,B) & not igual(X+1,Y+1,A,B).
+grupo4SquareB(X,Y,C,A,B) :- // hueco arriba-derecha
+	size(N) & X-1 >= 0 & Y+1 < N & datos(X,Y,_) & datos(X-1,Y,C) & datos(X,Y+1,C) & datos(X-1,Y+1,C) &
+	not igual(X-1,Y,A,B) & not igual(X,Y+1,A,B) & not igual(X-1,Y+1,A,B).
+grupo4SquareC(X,Y,C,A,B) :- // hueco abajo-izquierda
+	size(N) & X+1 < N & Y-1 >= 0 & datos(X,Y,_) & datos(X+1,Y,C) & datos(X,Y-1,C) & datos(X+1,Y-1,C) &
+	not igual(X+1,Y,A,B) & not igual(X,Y-1,A,B) & not igual(X+1,Y-1,A,B).
+grupo4SquareD(X,Y,C,A,B) :- // hueco abajo-derecha
+	size(N) & X-1 >= 0 & Y+1 < N & datos(X,Y,_) & datos(X-1,Y,C) & datos(X,Y-1,C) & datos(X-1,Y-1,C) &
+	not igual(X-1,Y,A,B) & not igual(X,Y-1,A,B) & not igual(X-1,Y-1,A,B).	
+//Con Ficha Especial
+grupo4SquareAEspecial(X,Y,C,A,B) :- // hueco arriba-izquierda
+	size(N) & X+1 < N & Y+1 < N & datos(X,Y,_) & datos(X+1,Y,C) & datos(X,Y+1,C) & datos(X+1,Y+1,C) &
+	not igual(X+1,Y,A,B) & not igual(X,Y+1,A,B) & not igual(X+1,Y+1,A,B) &
+	(fichaEspecial(X+1,Y) | fichaEspecial(X,Y+1) | fichaEspecial(X+1,Y+1) | fichaEspecial(A,B)).
+grupo4SquareBEspecial(X,Y,C,A,B) :- // hueco arriba-derecha
+	size(N) & X-1 >= 0 & Y+1 < N & datos(X,Y,_) & datos(X-1,Y,C) & datos(X,Y+1,C) & datos(X-1,Y+1,C) &
+	not igual(X-1,Y,A,B) & not igual(X,Y+1,A,B) & not igual(X-1,Y+1,A,B) &
+	(fichaEspecial(X-1,Y) | fichaEspecial(X,Y+1) | fichaEspecial(X-1,Y+1) | fichaEspecial(A,B)).
+grupo4SquareCEspecial(X,Y,C,A,B) :- // hueco abajo-izquierda
+	size(N) & X+1 < N & Y-1 >= 0 & datos(X,Y,_) & datos(X+1,Y,C) & datos(X,Y-1,C) & datos(X+1,Y-1,C) &
+	not igual(X+1,Y,A,B) & not igual(X,Y-1,A,B) & not igual(X+1,Y-1,A,B) &
+	(fichaEspecial(X+1,Y) | fichaEspecial(X,Y-1) | fichaEspecial(X+1,Y-1) | fichaEspecial(A,B)).
+grupo4SquareDEspecial(X,Y,C,A,B) :- // hueco abajo-derecha
+	size(N) & X-1 >= 0 & Y+1 < N & datos(X,Y,_) & datos(X-1,Y,C) & datos(X,Y-1,C) & datos(X-1,Y-1,C) &
+	not igual(X-1,Y,A,B) & not igual(X,Y-1,A,B) & not igual(X-1,Y-1,A,B) &
+	(fichaEspecial(X-1,Y) | fichaEspecial(X,Y-1) | fichaEspecial(X-1,Y-1) | fichaEspecial(A,B)).
+//Agrupación de 5
+grupo5Fil(X,Y,C,A,B) :- size(N) & X+2 < N & X-2 >= 0 & datos(X+1,Y,C) & datos(X+2,Y,C) & datos(X,Y,_) & datos(X-1,Y,C) & datos(X-2,Y,C) &
+	not igual(X+1,Y,A,B) & not igual(X+2,Y,A,B) & not igual(X-1,Y,A,B) & not igual(X-2,Y,A,B).
+//(Medio vertical)
+grupo5Col(X,Y,C,A,B) :- size(N) & Y+2 < N & Y-2 >= 0 & datos(X,Y+1,C) & datos(X,Y+2,C) & datos(X,Y,_) & datos(X,Y-1,C) & datos(X,Y-2,C) &
+	not igual(X,Y+1,A,B) & not igual(X,Y+2,A,B) & not igual(X,Y-1,A,B) & not igual(X,Y-2,A,B).
+	
+//Con especial
+grupo5FilEspecial(X,Y,C,A,B) :- size(N) & X+2 < N & X-2 >= 0 & datos(X+1,Y,C) & datos(X+2,Y,C) & datos(X,Y,_) & datos(X-1,Y,C) & datos(X-2,Y,C) &
+	not igual(X+1,Y,A,B) & not igual(X+2,Y,A,B) & not igual(X-1,Y,A,B) & not igual(X-2,Y,A,B) &
+	(fichaEspecial(X+1,Y) | fichaEspecial(X+2,Y) | fichaEspecial(X-1,Y) | fichaEspecial(X-2,Y) | fichaEspecial(A,B)).
+grupo5ColEspecial(X,Y,C,A,B) :- size(N) & Y+2 < N & Y-2 >= 0 & datos(X,Y+1,C) & datos(X,Y+2,C) & datos(X,Y,_) & datos(X,Y-1,C) & datos(X,Y-2,C) &
+	not igual(X,Y+1,A,B) & not igual(X,Y+2,A,B) & not igual(X,Y-1,A,B) & not igual(X,Y-2,A,B) &
+	(fichaEspecial(X,Y+1) | fichaEspecial(X,Y+2) | fichaEspecial(X,Y-1) | fichaEspecial(X,Y-2) | fichaEspecial(A,B)).
+//Agrupación 5 en T
+grupo5TN(X,Y,C,A,B) :- size(N) & X-1 >=0 & X+1 < N & Y+2 < N & datos(X-1,Y,C) & datos(X,Y,_) & datos(X+1,Y,C) & datos(X,Y+1,C) & datos(X,Y+2,C) &
+	not igual(X-1,Y,A,B) & not igual(X+1,Y,A,B) & not igual(X,Y+1,A,B) & not igual(X,Y+2,A,B).
+grupo5TI(X,Y,C,A,B) :- size(N) & X-1 >=0 & X+1 < N & Y-2 < N & datos(X-1,Y,C) & datos(X,Y,_) & datos(X+1,Y,C) & datos(X,Y-1,C) & datos(X,Y-2,C) &
+	not igual(X-1,Y,A,B) & not igual(X+1,Y,A,B) & not igual(X,Y-1,A,B) & not igual(X,Y-2,A,B).
+grupo5TR(X,Y,C,A,B) :- size(N) & X-2 >=0 & Y+1 < N & Y-1 >=0 & datos(X-1,Y,C) & datos(X-2,Y,C) & datos(X,Y,_) & datos(X,Y+1,C) & datos(X,Y-1,C) &
+	not igual(X-1,Y,A,B) & not igual(X-2,Y,A,B) & not igual(X,Y+1,A,B) & not igual(X,Y-1,A,B).
+grupo5TL(X,Y,C,A,B) :- size(N) & X+1 < N & Y+1 < N & Y-1 >=0 & datos(X+1,Y,C) & datos(X+2,Y,C) & datos(X,Y,_) & datos(X,Y+1,C) & datos(X,Y-1,C) &
+	not igual(X+1,Y,A,B) & not igual(X+2,Y,A,B) & not igual(X,Y+1,A,B) & not igual(X,Y-1,A,B).
 
-cont(0).
+grupo5TNEspecial(X,Y,C,A,B) :- size(N) & X-1 >=0 & X+1 < N & Y+2 < N & datos(X-1,Y,C) & datos(X,Y,_) & datos(X+1,Y,C) & datos(X,Y+1,C) & datos(X,Y+2,C) &
+	not igual(X-1,Y,A,B) & not igual(X+1,Y,A,B) & not igual(X,Y+1,A,B) & not igual(X,Y+2,A,B) &
+	(fichaEspecial(X-1,Y) | fichaEspecial(X+1,Y) | fichaEspecial(X,Y+1) | fichaEspecial(X,Y+2) | fichaEspecial(A,B)).
+grupo5TIEspecial(X,Y,C,A,B) :- size(N) & X-1 >=0 & X+1 < N & Y-2 < N & datos(X-1,Y,C) & datos(X,Y,_) & datos(X+1,Y,C) & datos(X,Y-1,C) & datos(X,Y-2,C) &
+	not igual(X-1,Y,A,B) & not igual(X+1,Y,A,B) & not igual(X,Y-1,A,B) & not igual(X,Y-2,A,B) &
+	(fichaEspecial(X-1,Y) | fichaEspecial(X+1,Y) | fichaEspecial(X,Y-1) | fichaEspecial(X,Y-2) | fichaEspecial(A,B)).
+grupo5TREspecial(X,Y,C,A,B) :- size(N) & X-2 >=0 & Y+1 < N & Y-1 >=0 & datos(X-1,Y,C) & datos(X-2,Y,C) & datos(X,Y,_) & datos(X,Y+1,C) & datos(X,Y-1,C) &
+	not igual(X-1,Y,A,B) & not igual(X-2,Y,A,B) & not igual(X,Y+1,A,B) & not igual(X,Y-1,A,B) &
+	(fichaEspecial(X-1,Y) | fichaEspecial(X-2,Y) | fichaEspecial(X,Y+1) | fichaEspecial(X,Y-1) | fichaEspecial(A,B)).
+grupo5TLEspecial(X,Y,C,A,B) :- size(N) & X+1 < N & Y+1 < N & Y-1 >=0 & datos(X+1,Y,C) & datos(X+2,Y,C) & datos(X,Y,_) & datos(X,Y+1,C) & datos(X,Y-1,C) &
+	not igual(X+1,Y,A,B) & not igual(X+2,Y,A,B) & not igual(X,Y+1,A,B) & not igual(X,Y-1,A,B) &
+	(fichaEspecial(X+1,Y) | fichaEspecial(X+2,Y) | fichaEspecial(X,Y+1) | fichaEspecial(X,Y-1) | fichaEspecial(A,B)).
 
-//Permite obtener una pos X,Y con una Dir para realizar un movimiento correctamente
-posicionAleatoria(pos(X,Y),Dir):- 
-	size(N)&
-	.random(OX,10) &
-	.random(OY,10) &
-	X = math.round(10*N*OX) mod N &
-	Y = math.round(10*N*OY) mod N & 
-	valorAleatorio(Valor) & 
-	dirAleatoria(Dir,Valor) &
-	not fueraTablero(pos(X,Y),Dir)&       
-	not mismoColorFicha(pos(X,Y),Dir)
-	& not vacio(pos(X,Y),Dir) &
-	not obstaculo(pos(X,Y),Dir).
+//Para elegir la agrupacion prioritaria
+grupo3(X,Y,C,A,B):- grupo3FilA(X,Y,C,A,B) | grupo3FilB(X,Y,C,A,B) | grupo3FilC(X,Y,C,A,B) | grupo3ColA(X,Y,C,A,B) | grupo3ColB(X,Y,C,A,B) | grupo3ColC(X,Y,C,A,B).	
+grupo4(X,Y,C,A,B):- grupo4FilA(X,Y,C,A,B) | grupo4FilB(X,Y,C,A,B) | grupo4ColA(X,Y,C,A,B) | grupo4ColB(X,Y,C,A,B).
+grupoCuadrado(X,Y,C,A,B):- grupo4SquareA(X,Y,C,A,B) | grupo4SquareB(X,Y,C,A,B) | grupo4SquareC(X,Y,C,A,B) | grupo4SquareD(X,Y,C,A,B).
+grupoT(X,Y,C,A,B):- grupo5TN(X,Y,C,A,B) | grupo5TI(X,Y,C,A,B) | grupo5TR(X,Y,C,A,B) | grupo5TL(X,Y,C,A,B).
+grupo5(X,Y,C,A,B):- grupo5Fil(X,Y,C,A,B) | grupo5Col(X,Y,C,A,B).
+//Con especial
+grupo3Especial(X,Y,C,A,B):- grupo3FilAEspecial(X,Y,C,A,B) | grupo3FilBEspecial(X,Y,C,A,B) | grupo3FilCEspecial(X,Y,C,A,B) | grupo3ColAEspecial(X,Y,C,A,B) | grupo3ColBEspecial(X,Y,C,A,B) | grupo3ColCEspecial(X,Y,C,A,B).	
+grupo4Especial(X,Y,C,A,B):- grupo4FilAEspecial(X,Y,C,A,B) | grupo4FilBEspecial(X,Y,C,A,B) | grupo4ColAEspecial(X,Y,C,A,B) | grupo4ColBEspecial(X,Y,C,A,B).
+grupoCuadradoEspecial(X,Y,C,A,B):- grupo4SquareAEspecial(X,Y,C,A,B) | grupo4SquareBEspecial(X,Y,C,A,B) | grupo4SquareCEspecial(X,Y,C,A,B) | grupo4SquareDEspecial(X,Y,C,A,B).
+grupoTEspecial(X,Y,C,A,B):- grupo5TNEspecial(X,Y,C,A,B) | grupo5TIEspecial(X,Y,C,A,B) | grupo5TREspecial(X,Y,C,A,B) | grupo5TLEspecial(X,Y,C,A,B).
+grupo5EspecialEspecial(X,Y,C,A,B):- grupo5FilEspecial(X,Y,C,A,B) | grupo5ColEspecial(X,Y,C,A,B).
 
-//Permite obtener un Valor aleatorio entre 0 y 3	
-valorAleatorio(Valor) :- 
-	.random(V,10)
-	& Valor = (math.round(10*V) mod 4).
+datos(X,Y,Color):- tablero(celda(X,Y,_),ficha(Color,_)).
 
-//Permite obtener una Dir dependiendo el valor de la variable Valor , y viceversa
-dirAleatoria(Dir,Valor):- 
-	(Valor = 0 & Dir = up) | 
-	(Valor = 1 & Dir = down) | 
-	(Valor = 2 & Dir = left) | 
-	(Valor = 3 & Dir = right).	
+direccion(0,"up").
+direccion(1,"down").
+direccion(2,"right").
+direccion(3,"left").
+
+
+randomMov(Mov):-
+	size(Size) &
+	.random(R1) & .random(R2) & .random(R3) & 
+	direccion(4 * math.floor(R1), Dir) &
+	Mov = moverDesdeEnDireccion(pos(math.floor(R2*Size) ,math.floor(R3 * Size)),Dir).
+
+movPrueba(Mov) :- Mov = moverDesdeEnDireccion(pos(1,0),"left").
 	
-//Comprueba si el movimiento se realiza fuera del tablero	
-fueraTablero(pos(X,Y),Dir):-  
-	mayorTamano(pos(X,Y),Dir) | 
-	menorTamano(pos(X,Y),Dir). 
-	
-//Comprueba si el movimiento sobresale del tamaño maximo del tablero
-mayorTamano(pos(X,Y),Dir):- 
-	size(N) & 
-	(X >= N | Y >= N | 
-	((Dir = down)  & ((Y + 1) >= N)) | 
-	((Dir = right) & ((X + 1) >= N))).
-	
-//Comprueba si el movimiento sobresale del tamaño minimo del tablero  	
-menorTamano(pos(X,Y),Dir):- 
-	negativo(X)| negativo(Y) | 
-	((Dir = up) & (negativo(Y - 1))) | 
-	((Dir = left) & (negativo(X - 1))).  
-	
-//Comprueba si un numero es negativo
-negativo(X)[source(self)] :- X < 0. 
-	
-//Comprueba si el movimiento se realiza un intercambio de dos fichas con el
-//mismo color
-mismoColorFicha(pos(X,Y),Dir):- 
-	 tablero(celda(X,Y,_),ficha(C,_)) &
-	((Dir = up & tablero(celda(X,Y-1,_),ficha(C1,_)) & C = C1) |
-	(Dir = down & tablero(celda(X,Y+1,_),ficha(C2,_)) & C = C2) |
-	(Dir = left & tablero(celda(X-1,Y,_),ficha(C3,_)) & C = C3) |
-	(Dir = right & tablero(celda(X+1,Y,_),ficha(C4,_)) & C = C4)) .  
-	
-	//Añadí estas dos reglas para poder hacer más arriba la comprobacion
-vacio(pos(X,Y),Dir):- tablero(celda(X,Y,_),ficha(0,_)) | 
-					(Dir = up & tablero(celda(X,Y-1,_),ficha(0,_))) |
-					(Dir = down &  tablero(celda(X,Y+1,_),ficha(0,_))) |
-					(Dir = left &  tablero(celda(X-1,Y,_),ficha(0,_))) |
-					(Dir = right & tablero(celda(X+1,Y,_),ficha(0,_))).
-							
-obstaculo(pos(X,Y),Dir) :- tablero(celda(X,Y,_),ficha(4,_)) |
-								(Dir = up & tablero(celda(X,Y-1,_),ficha(4,_))) |
-								(Dir = down & tablero(celda(X,Y+1,_),ficha(4,_))) |
-								(Dir = left & tablero(celda(X-1,Y,_),ficha(4,_))) |
-								(Dir = right & tablero(celda(X+1,Y,_),ficha(4,_))).
 /* Initial goals */
+
+
 /* Plans */
 
-//Se recibe la orden de mover y se envía la dirección a la que se desea mover
-+puedesMover[source(judge)] <-!recorrerTablero;.
++buscarMejorJugada:size(N) <-
+	-buscarMejorJugada;
 	
-//Si no se recibe una posición aleatoria nos muestra un mensaje indicando el problema
-+puedesMover[source(judge)] : not posicionAleatoria(pos(X,Y),Dir)[source(self)]<-
-	.print("No encuento movimiento valido").
-
-//El movimiento enviado fue inválido ya que no era el turno del agente	
-+invalido(fueraTurno,Veces)[source(judge)] <-
-	
-	.print("Vez: ", Veces, " .El movimiento anterior era invalido porque se movió fuera del turno.\n").
-
-//El movimiento enviado fue inválido ya que la posición enviada estaba fuera de los límtes del tablero	
-+invalido(fueraTablero,Veces)[source(judge)] <-
-	.print("Vez: ", Veces, " .El movimiento anterior era invalido porque se movió la ficha fuera del tablero. Se vuelve a enviar otro\n");
-	 .send(judge,untell,moverDesdeEnDireccion(_,_));
-	if(Veces == 3){
-		.print("He jugado 3 veces fuera del tablero");
-		.send(judge,tell,pasoTurno);
-		.send(judge,untell,pasoTurno);
-	}else{
-		
-		//Comprueba que el juez siga en el entorno del jugador
-		.all_names(J);
-		if(.member(judge,J)){
-		?posicionAleatoria(pos(X1,Y1),Dir1);
-		.print("Quiero mover de ",X1,",",Y1," hacia ",Dir1);
-	    .send(judge,tell,moverDesdeEnDireccion(pos(X1,Y1),Dir1));
-		}else{
-			.print("Se ha perdido la comunicación con el juez\n");
-		};
-		}.
-//Los dos mensajes de invalidonuevo con cada uno de los valores y el mensaje del
-//player.
-+invalidoNuevo(casillaObstaculo)[source(judge)] <-
-		.print("He intentado mover hacia un obstáculo.Vuelvo a enviar un movimiento")
-		.all_names(J);
-		
-		.send(judge,untell,moverDesdeEnDireccion(_,_));
-			if(.member(judge,J)){
-			 ?posicionAleatoria(pos(X1,Y1),Dir1);
-			.print("Quiero mover de ",X1,",",Y1," hacia ",Dir1);
-			.send(judge,tell,moverDesdeEnDireccion(pos(X1,Y1),Dir1));
-				}else{
-		.print("Se ha perdido la comunicación con el juez\n");
-		}.
-		
-+invalidoNuevo(casillaVacia)[source(judge)]<-
-		.print("He intentado mover hacia una casilla vacía. Vuelvo a enviar un movimiento");
-		.all_names(J);
-		
-			.send(judge,untell,moverDesdeEnDireccion(_,_));
-			if(.member(judge,J)){
-				  ?posicionAleatoria(pos(X1,Y1),Dir1);
-		          .print("Quiero mover de ",X1,",",Y1," hacia ",Dir1);
-	              .send(judge,tell,moverDesdeEnDireccion(pos(X1,Y1),Dir1));
-				}else{
-		.print("Se ha perdido la comunicación con el juez\n");
-		}.
-//Si se mueve a una posición con una ficha del mismo color sigue enviando nuevas posiciones  
-//hasta que una sea correcta
-+tryAgain[source(judge)]<-
-	 .send(judge,untell,moverDesdeEnDireccion(_,_));
-  	.print("Vuelvo a enviar un movimiento ya que el juez me ha dicho que me he movido de una celda a otra con el mismo color de ficha ",X,", ",Y," a ", Dir,"\n");
-	//Comprueba que el juez siga en el entorno del jugador
-	.all_names(J);
-	if(.member(judge,J)){
-		?posicionAleatoria(pos(X1,Y1),Dir1);
-		.print("Quiero mover de ",X1,",",Y1," hacia ",Dir1);
-	    .send(judge,tell,moverDesdeEnDireccion(pos(X1,Y1),Dir1));
-		
-	}else{
-		.print("Se ha perdido la comunicación con el juez\n");
+	+borrarBusqueda;
+	-borrarBusqueda;
+	for(.range(X,0,N-1)){
+		for(.range(Y,0,N-1)){
+			if(datos(X,Y,C)){
+				if(grupo5Especial(X,Y-1,C,X,Y) & not igualColor(X,Y-1,C,C) & not esObstaculo(X,Y-1)){-+grupo5Especial(X,Y,"up")};
+				if(grupo5Especial(X,Y+1,C,X,Y) & not igualColor(X,Y+1,C,C) & not esObstaculo(X,Y+1)){-+grupo5Especial(X,Y,"down")};
+				if(grupo5Especial(X-1,Y,C,X,Y) & not igualColor(X-1,Y,C,C) & not esObstaculo(X-1,Y)){-+grupo5Especial(X,Y,"left")};
+				if(grupo5Especial(X+1,Y,C,X,Y) & not igualColor(X+1,Y,C,C) & not esObstaculo(X+1,Y)){-+grupo5Especial(X,Y,"right")};
+				
+				if(grupoTEspecial(X,Y-1,C,X,Y) & not igualColor(X,Y-1,C,C) & not esObstaculo(X,Y-1)){-+grupoTEspecial(X,Y,"up")};
+				if(grupoTEspecial(X,Y+1,C,X,Y) & not igualColor(X,Y+1,C,C) & not esObstaculo(X,Y+1)){-+grupoTEspecial(X,Y,"down")};
+				if(grupoTEspecial(X-1,Y,C,X,Y) & not igualColor(X-1,Y,C,C) & not esObstaculo(X-1,Y)){-+grupoTEspecial(X,Y,"left")};
+				if(grupoTEspecial(X+1,Y,C,X,Y) & not igualColor(X+1,Y,C,C) & not esObstaculo(X+1,Y)){-+grupoTEspecial(X,Y,"right")};
+				
+				if(grupo4Especial(X,Y-1,C,X,Y) & not igualColor(X,Y-1,C,C) & not esObstaculo(X,Y-1)){-+grupo4Especial(X,Y,"up")};
+				if(grupo4Especial(X,Y+1,C,X,Y) & not igualColor(X,Y+1,C,C) & not esObstaculo(X,Y+1)){-+grupo4Especial(X,Y,"down")};
+				if(grupo4Especial(X-1,Y,C,X,Y) & not igualColor(X-1,Y,C,C) & not esObstaculo(X-1,Y)){-+grupo4Especial(X,Y,"left")};
+				if(grupo4Especial(X+1,Y,C,X,Y) & not igualColor(X+1,Y,C,C) & not esObstaculo(X+1,Y)){-+grupo4Especial(X,Y,"right")};
+				
+				if(grupoCuadradoEspecial(X,Y-1,C,X,Y) & not igualColor(X,Y-1,C,C) & not esObstaculo(X,Y-1)){-+grupoCuadradoEspecial(X,Y,"up")};
+				if(grupoCuadradoEspecial(X,Y+1,C,X,Y) & not igualColor(X,Y+1,C,C) & not esObstaculo(X,Y+1)){-+grupoCuadradoEspecial(X,Y,"down")};
+				if(grupoCuadradoEspecial(X-1,Y,C,X,Y) & not igualColor(X-1,Y,C,C) & not esObstaculo(X-1,Y)){-+grupoCuadradoEspecial(X,Y,"left")};
+				if(grupoCuadradoEspecial(X+1,Y,C,X,Y) & not igualColor(X+1,Y,C,C) & not esObstaculo(X+1,Y)){-+grupoCuadradoEspecial(X,Y,"right")};
+				
+				if(grupo3Especial(X,Y-1,C,X,Y) & not igualColor(X,Y-1,C,C) & not esObstaculo(X,Y-1)){-+grupo3Especial(X,Y,"up")};
+				if(grupo3Especial(X,Y+1,C,X,Y) & not igualColor(X,Y+1,C,C) & not esObstaculo(X,Y+1)){-+grupo3Especial(X,Y,"down")};
+				if(grupo3Especial(X-1,Y,C,X,Y) & not igualColor(X-1,Y,C,C) & not esObstaculo(X-1,Y)){-+grupo3Especial(X,Y,"left")};
+				if(grupo3Especial(X+1,Y,C,X,Y) & not igualColor(X+1,Y,C,C) & not esObstaculo(X+1,Y)){-+grupo3Especial(X,Y,"right")};
+							
+				if(grupo5(X,Y-1,C,X,Y) & not igualColor(X,Y-1,C,C) & not esObstaculo(X,Y-1)){-+grupo5(X,Y,"up")};
+				if(grupo5(X,Y+1,C,X,Y) & not igualColor(X,Y+1,C,C) & not esObstaculo(X,Y+1)){-+grupo5(X,Y,"down")};
+				if(grupo5(X-1,Y,C,X,Y) & not igualColor(X-1,Y,C,C) & not esObstaculo(X-1,Y)){-+grupo5(X,Y,"left")};
+				if(grupo5(X+1,Y,C,X,Y) & not igualColor(X+1,Y,C,C) & not esObstaculo(X+1,Y)){-+grupo5(X,Y,"right")};
+				
+				if(grupoT(X,Y-1,C,X,Y) & not igualColor(X,Y-1,C,C) & not esObstaculo(X,Y-1)){-+grupoT(X,Y,"up")};
+				if(grupoT(X,Y+1,C,X,Y) & not igualColor(X,Y+1,C,C) & not esObstaculo(X,Y+1)){-+grupoT(X,Y,"down")};
+				if(grupoT(X-1,Y,C,X,Y) & not igualColor(X-1,Y,C,C) & not esObstaculo(X-1,Y)){-+grupoT(X,Y,"left")};
+				if(grupoT(X+1,Y,C,X,Y) & not igualColor(X+1,Y,C,C) & not esObstaculo(X+1,Y)){-+grupoT(X,Y,"right")};
+				
+				if(grupo4(X,Y-1,C,X,Y) & not igualColor(X,Y-1,C,C) & not esObstaculo(X,Y-1)){-+grupo4(X,Y,"up")};
+				if(grupo4(X,Y+1,C,X,Y) & not igualColor(X,Y+1,C,C) & not esObstaculo(X,Y+1)){-+grupo4(X,Y,"down")};
+				if(grupo4(X-1,Y,C,X,Y) & not igualColor(X-1,Y,C,C) & not esObstaculo(X-1,Y)){-+grupo4(X,Y,"left")};
+				if(grupo4(X+1,Y,C,X,Y) & not igualColor(X+1,Y,C,C) & not esObstaculo(X+1,Y)){-+grupo4(X,Y,"right")};
+				
+				if(grupoCuadrado(X,Y-1,C,X,Y) & not igualColor(X,Y-1,C,C) & not esObstaculo(X,Y-1)){-+grupoCuadrado(X,Y,"up")};
+				if(grupoCuadrado(X,Y+1,C,X,Y) & not igualColor(X,Y+1,C,C) & not esObstaculo(X,Y+1)){-+grupoCuadrado(X,Y,"down")};
+				if(grupoCuadrado(X-1,Y,C,X,Y) & not igualColor(X-1,Y,C,C) & not esObstaculo(X-1,Y)){-+grupoCuadrado(X,Y,"left")};
+				if(grupoCuadrado(X+1,Y,C,X,Y) & not igualColor(X+1,Y,C,C) & not esObstaculo(X+1,Y)){-+grupoCuadrado(X,Y,"right")};
+				
+				if(grupo3(X,Y-1,C,X,Y) & not igualColor(X,Y-1,C,C) & not esObstaculo(X,Y-1)){-+grupo3(X,Y,"up")};
+				if(grupo3(X,Y+1,C,X,Y) & not igualColor(X,Y+1,C,C) & not esObstaculo(X,Y+1)){-+grupo3(X,Y,"down")};
+				if(grupo3(X-1,Y,C,X,Y) & not igualColor(X-1,Y,C,C) & not esObstaculo(X-1,Y)){-+grupo3(X,Y,"left")};
+				if(grupo3(X+1,Y,C,X,Y) & not igualColor(X+1,Y,C,C) & not esObstaculo(X+1,Y)){-+grupo3(X,Y,"right")};
+			}
+		}
 	}.
+
++borrarBusqueda <-
+	-borrarBusqueda;
+	.findall(grupo5(A1,B1,D1),grupo5(A1,B1,D1),L1);for ( .member(K1,L1) ) {-K1;};
+	.findall(grupoT(A2,B2,D2),grupoT(A2,B2,D2),L2);for ( .member(K2,L2) ) {-K2;};
+	.findall(grupo4(A3,B3,D3),grupo4(A3,B3,D3),L3);for ( .member(K3,L3) ) {-K3;};
+	.findall(grupoCuadrado(A4,B4,D4),grupoCuadrado(A4,B4,D4),L4);for ( .member(K4,L4) ) {-K4;};
+	.findall(grupo3(A5,B5,D5),grupo3(A5,B5,D5),L5);for ( .member(K5,L5) ) {-K5;};
 	
-////////////////////////////////////////////////////////////////////////////////
-////////////		BUSCAR COMBINACIONES		////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-
-+!buscarCombinaciones<-
-
-		!cincoFichasEspecialTDer;
-		
-		!cincoFichasEspecialTIzq;
-		
-		!cincoFichasEspecialTIvertida;
-		
-		!cincoFichasEspecialT;
-		!cincoFichasEspecialV1;
-		!cincoFichasEspecialV2;
-		!cincoFichasEspecialH1;
-		!cincoFichasEspecialH2;
-		!tresFichasEspecialH8;
-		
-		!tresFichasEspecialH7;
-		
-		!tresFichasEspecialH6;
-		
-		!tresFichasEspecialH5;
-		
-		!tresFichasEspecialH4;
-		
-		!tresFichasEspecialH3;
-		
-		!tresFichasEspecialH2;
-		
-		!tresFichasEspecialH1;
-		
-		!tresFichasEspecialV1;
-		
-		!tresFichasEspecialV2;
-		
-		!tresFichasEspecialV3;
-		
-		!tresFichasEspecialV4;
-		
-		!tresFichasEspecialV5;
-		
-		!tresFichasEspecialV6;
-		
-		!tresFichasEspecialV7;
-		
-		!tresFichasEspecialV8;
-		
-		!cuatroFichasEspecialV21;
-		
-		!cuatroFichasEspecialV22;
-		
-		!cuatroFichasEspecialV11;
-		
-		!cuatroFichasEspecialV12;
-		
-		!cuatroFichasEspecialH22;
-		
-		!cuatroFichasEspecialH21;
-		
-		!cuatroFichasEspecialH11;
-		
-		!cuatroFichasEspecialH12;
-		
-		!cuatroFichasEspecialC42;
-		
-		!cuatroFichasEspecialC41;
-		
-		!cuatroFichasEspecialC31;
-		
-		!cuatroFichasEspecialC32;
-		
-		!cuatroFichasEspecialC21;
-		
-		!cuatroFichasEspecialC22;
-		
-		!cuatroFichasEspecialC12;
-		
-		!cuatroFichasEspecialC11;
-		
-		
-		
+	.findall(grupo5Especial(A6,B6,D6),grupo5Especial(A6,B6,D6),L6);for ( .member(K6,L6) ) {-K6;};
+	.findall(grupoTEspecial(A7,B7,D7),grupoTEspecial(A7,B7,D7),L7);for ( .member(K7,L7) ) {-K7;};
+	.findall(grupo4Especial(A8,B8,D8),grupo4Especial(A8,B8,D8),L8);for ( .member(K8,L8) ) {-K8;};
+	.findall(grupoCuadradoEspecial(A9,B9,D9),grupoCuadradoEspecial(A9,B9,D9),L9);for ( .member(K9,L9) ) {-K9;};
+	.findall(grupo3Especial(A10,B10,D10),grupo3Especial(A10,B10,D10),L10);for ( .member(K10,L10) ) {-K10;}
 	.
-
-+!recorrerTablero: size(N) <-
-	.print("Buscando mov");
-	+estructura(-1,-1,rigth,-10);
-	
-
-	!buscarCombinaciones;
-	
-	
-	.print("Hechas las comprobaciones de combinaciones");
-	!movimiento;
-	
-	
-	!eliminarCreencias;
-	.
-	
-/*Realiza la combinación de mayor puntuación. */	
-+!movimiento <-
-
-		?estructura(X,Y, Dir, P);
-		if (X == -1 & Y == -1){
-			?posicionAleatoria(pos(X1,Y1),Dir1);
-			.print("Quiero mover de ",X1,",",Y1," hacia ",Dir1);
-			.send(judge,tell,moverDesdeEnDireccion(pos(X1,Y1),Dir1));
-		}else {
-		.print("Quiero mover de ",X,",",Y," hacia ",Dir);
-			.send(judge,tell,moverDesdeEnDireccion(pos(X,Y),Dir));
-		}
-		
-.
++eliminarDatosTablero <-
+	-eliminarDatosTablero;
+	.findall(tablero(X,Y),tablero(X,Y),Lista);	
+	for ( .member(Datos,Lista) ) {
+			-Datos[source(judge)];
+		 }.
+//Comienzo del turno
++puedesMover[source(judge)] <- !realizarMovimiento.
 
 
-+!eliminarCreencias:size(N)<-
-
-	-estructura(_,_,_,_);
-.
-
-// Y-1 == ARRIBA	Y+1 == ABAJO	X+1 == DER.	X-1 == IZQ.
-
-//Punto de referencia la primera x fija
-
-/**
- * 3 fichas horizontal
- *   x
- * X o x
- */
-+!tresFichasEspecialH8 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & tablero(celda(X+1,Y,_),ficha(Color2,_)) & Color2 > 4 & Y1=Y-1 & X1=X+1 & X2=X+2 & Y2= Y & Color > 4 & Y > 0 & size(N) & X < N-2 
-			, ListaFichas);
-	
-	.print("tresFichasEspecialH8: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+1,B-1,down,N);
-		}
-		-cont(N);
-		}
-		.
-/**
- * 3 fichas horizontal
- * X o x
- *   x
- */
-+!tresFichasEspecialH7 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & tablero(celda(X+1,Y,_),ficha(Color2,_)) & Color2 > 4 & Y1=Y & X1=X+2 & X2=X+1 & Y2= Y+1 & Color > 4 & Y < N-1 & size(N) & X < N-2 
-			, ListaFichas);
-	
-	.print("tresFichasEspecialH7: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+1,B+1,up,N);
-		}
-		-cont(N);
-		}
-		.
-
-/**
- * 3 fichas horizontal
- * X x o
- *     x
- */ 
-+!tresFichasEspecialH6 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & tablero(celda(X+2,Y,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y & X1=X+1 & X2=X+2 & Y2= Y+1 & Color > 4 & Y < N-1 & size(N) & X < N-2 
-			, ListaFichas);
-	
-.print("tresFichasEspecialH6: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+2,B+1,up,N);
-		}
-		-cont(N);
-		}
-		.
-/**
- * 3 fichas horizontal
- *     x
- * X x o
- */
-+!tresFichasEspecialH5 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & tablero(celda(X+2,Y,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y & X1=X+1 & X2=X+2 & Y2= Y-1 & Color > 4 & Y > 0 & size(N) & X < N-2 
-			, ListaFichas);
-	
-	.print("tresFichasEspecialH5: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(N);
-	
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+2,B-1,down,N);
-		}
-		-cont(N);
-		}
-		.
-/**
- * 3 fichas horizontal
- * o x X
- * x
- */
-+!tresFichasEspecialH4 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & tablero(celda(X-2,Y,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y+1 & X1=X-2 & X2=X-1 & Y2= Y & Color > 4 & Y < N-1 & size(N) & X < N-2 
-			, ListaFichas);
-.print("tresFichasEspecialH4: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A-2,B+1,up,N);
-		}
-		-cont(N);
-		}
-		.
-/**
- * 3 fichas horizontal, tomando como referencia X
- * x
- * o x X
- */
-+!tresFichasEspecialH3 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & tablero(celda(X-2,Y,_),ficha(Color2,_)) & Color2 > 4 & Y1=Y & X1=X-1 & X2=X-2 & Y2= Y-1 & Color > 4 & Y > 0 & size(N) & X < N-2 
-			, ListaFichas);
-	
-	.print("tresFichasEspecialH3: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A-2,B-1,down,N);
-		}
-		-cont(N);
-		}
-		.
-//3 fichas horizontal, tomando como referencia X
-/**
-* x x o X 
-**/
-+!tresFichasEspecialH2 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & tablero(celda(X-1,Y,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y & X1=X-2 & X2=X-3 & Y2= Y & Color > 4  & size(N) & X > 2 
-			, ListaFichas);
-	
-	.print("tresFichasEspecialH2: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(N);
-	
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A,B,left,N);
-		}
-		-cont(N);
-		}
-		.
-//3 fichas horizontal, tomando como referencia X
-/**
-* X o x x 
-**/
-+!tresFichasEspecialH1 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & tablero(celda(X+1,Y,_),ficha(Color2,_)) & Color2 > 4 & Y1=Y & X1=X+2 & X2=X+3 & Y2= Y & Color > 4  & size(N) & X < N-3 
-			, ListaFichas);
-	.print("tresFichasEspecialH1: ",ListaFichas);
-	
-	for (.member(fichas(A,B,A1,B1,A2,B2), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A,B,right,N);
-		}
-		-cont(N);
-		}
-		.
-/**
- * 3 fichas vertical
- * x
- * o
- * x
- * X
- */
-+!tresFichasEspecialV1 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & tablero(celda(X,Y-2,_),ficha(Color2,_)) & Color2 > 4 & Y1=Y-1 & X1=X & X2=X & Y2= Y-3 & Color > 4  & size(N) & Y > 2 
-			, ListaFichas);
-
-	.print("tresFichasEspecialV1: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(N);
-	
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A,B-3,down,N);
-		}
-		-cont(N);
-		}
-		.
-	
-/**
- * 3 fichas vertical
- * X
- * x
- * o
- * x
- */
-+!tresFichasEspecialV2 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & tablero(celda(X,Y+2,_),ficha(Color2,_)) & Color2 > 4 & Y1=Y+1 & X1=X & X2=X & Y2= Y+3 & Color > 4  & size(N) & Y < N-4
-			, ListaFichas);
-
-	.print("tresFichasEspecialV2: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(N);
-
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A,B+3,up,N);
-		}
-		-cont(N);
-		}
-		.
-
-/**
- * 3 fichas vertical
- * X
- * x
- * o x
- */
-+!tresFichasEspecialV3 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & tablero(celda(X,Y+2,_),ficha(Color2,_)) & Color2 > 4 & Y1=Y+1 & X1=X & X2=X+1 & Y2= Y+2 & Color > 4 & Y < N-2 & size(N) & X < N
-			, ListaFichas);
-	
-	.print("tresFichasEspecialV3: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+1,B+2,left,N);
-		}
-		-cont(N);
-		}
-		.
-/**
- * 3 fichas vertical
- * o x
- * x
- * X
- */
-+!tresFichasEspecialV4 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & tablero(celda(X,Y-2,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y-1 & X1=X & X2=X+1 & Y2= Y-2 & Color > 4  & size(N) & Y > 1 & X < N-2 
-			, ListaFichas);
-
-	.print("tresFichasEspecialV4: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(N);
-	
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+1,B-2,left,N);
-		}
-		-cont(N);
-		}
-		.
-
-/**
- * 3 fichas vertical
- * x o
- *   x
- *   X
- */
-+!tresFichasEspecialV5 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & tablero(celda(X,Y-2,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y-1 & X1=X & X2=X-1 & Y2= Y-2 & Color > 4  & size(N) & Y > 1 & X > 0
-			, ListaFichas);
-	.print("tresFichasEspecialV5: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(N);
-
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A-1,B-2,right,N);
-		}
-		-cont(N);
-		}
-		.
-
-/**
- * 3 fichas vertical
- *   X
- *   x
- * x o
- */
-+!tresFichasEspecialV6 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & tablero(celda(X,Y+2,_),ficha(Color2,_)) & Color2 > 4 & Y1=Y+1 & X1=X & X2=X-1 & Y2= Y+2 & Color > 4  & size(N) & Y > 0 & X < N-2 
-			, ListaFichas);
-
-	.print("tresFichasEspecialV6: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(N);
-
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A-1,B+2,right,N);
-		}
-		-cont(N);
-		}
-		.
-		
-/**
- * 3 fichas vertical
- *      X
- * (7)x o x (8)
- *      x
- */
-+!tresFichasEspecialV7 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & tablero(celda(X,Y+1,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y+2 & X1=X & X2=X-1 & Y2= Y+1 & Color > 4  & size(N) & Y < N-2 & X < 0
-			, ListaFichas);
-	     .print("tresFichasEspecialV7: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(N);
-
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A-1,B+1,right,N);
-		}
-		-cont(N);
-		}
-		.
-		
-		
-/**
- * 3 fichas vertical
- *      X
- * (7)x o x (8)
- *      x
- */		
-+!tresFichasEspecialV8 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & tablero(celda(X,Y+1,_),ficha(Color2,_)) & Color2 > 4 & Y1=Y+2 & X1=X & X2=X+1 & Y2= Y+1 & Color > 4  & size(N) & Y < N-1 & X > 0
-			, ListaFichas);
-	.print("tresFichasEspecialV8: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(N);
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+1,B+1,left,N);
-		}
-		-cont(N);
-		}
-		.
-
-/**
- * 	4 fichas vertical
- *	    X
- *      x
- * (1)x o x(2)
- *	    x
- */
-+!cuatroFichasEspecialV21 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) & tablero(celda(X,Y+2,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y+1 & X1=X & X2=X & Y2= Y+3 & X3=X+1 & Y3=Y+2 & Color > 4  & size(N) & Y > 2 
-			, ListaFichas);
-.print("cuatroFichasEspecialV21: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+2);
-		?cont(N);
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+1,B+2,left,N);
-		}
-		-cont(N);
-		}
-		.
-
-/**
- * 	4 fichas vertical
- *	    X
- *      x
- * (1)x o x(2)
- *	    x
- */
-+!cuatroFichasEspecialV22 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) & tablero(celda(X,Y+2,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y+1 & X1=X & X2=X & Y2= Y+3 & X3=X-1 & Y3=Y+2 & Color > 4  & size(N) & Y < N-3 & X>0
-			, ListaFichas);
-
-	.print("cuatroFichasEspecialV22: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+2);
-		
-		?cont(N);
-	
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A-1,B+2,right,N);
-		}
-		-cont(N);
-		}
-		.
-/**
- * 	4 fichas vertical, tomando como referencia X
- *	    X
- * (1)x o x(2)
- *	    x
- *	    x
- */
-+!cuatroFichasEspecialV11 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) & tablero(celda(X,Y+1,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y+2 & X1=X & X2=X & Y2= Y+3 & X3=X+1 & Y3=Y+1 & Color > 4  & size(N) & Y < N-3 & X < N-1
-			, ListaFichas);
-
-	.print("cuatroFichasEspecialV11: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+2);
-		
-		?cont(N);
-
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+1,B+1,left,N);
-		}
-		-cont(N);
-		}
-		.
-/**
- * 	4 fichas vertical, tomando como referencia X
- *	    X
- * (1)x o x(2)
- *	    x
- *	    x
- */
-+!cuatroFichasEspecialV12 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) & tablero(celda(X,Y+1,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y+2 & X1=X & X2=X & Y2= Y+3 & X3=X-1 & Y3=Y+1 & Color > 4  & size(N) & Y < N-3 & X>0
-			, ListaFichas);
-	
-	.print("cuatroFichasEspecialV12: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+2);
-		
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A-1,B+1,right,N);
-		}
-		-cont(N);
-		}
-		.
-//4 fichas horizontal, tomando X como referencia 
-/*  x (1)
-X x o x 
-    x  (2)
-*/
-+!cuatroFichasEspecialH22 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) & tablero(celda(X+2,Y,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y & X1=X+1 & X2=X+3 & Y2= Y & X3=X+2 & Y3=Y+1 & Color > 4  & size(N) & X < N-3 & Y < N-1
-			, ListaFichas);
-
-	.print("cuatroFichasEspecialH22: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+2);
-		
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+2,B+1,up,N);
-		}
-		-cont(N);
-		}
-		.
-//4 fichas horizontal, tomando X como referencia 
-/*  x (1)
-X x o x 
-    x  (2)
-*/
-+!cuatroFichasEspecialH21 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) & tablero(celda(X+2,Y,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y & X1=X+1 & X2=X+3 & Y2= Y & X3=X+2 & Y3=Y-1 & Color > 4  & size(N) & X < N-3 & Y > 0
-			, ListaFichas);
-	
-		.print("cuatroFichasEspecialH21: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+2);
-		
-		?cont(N);
-	
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+2,B-1,down,N);
-		}
-		-cont(N);
-		}
-		.
-//4 fichas horizontal 
-/** x (2)
-* X o x x
-*   x (1)
-**/
-+!cuatroFichasEspecialH11 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) & tablero(celda(X+1,Y,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y & X1=X+2 & X2=X+3 & Y2= Y & X3=X+1 & Y3=Y+1 & Color > 4  & size(N) & X < N-3 & Y < N
-			, ListaFichas);
-	
-		.print("cuatroFichasEspecialH11: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+2);
-		
-		?cont(N);
-	
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+1,B+1,up,N);
-		}
-		-cont(N);
-		}
-		.
-//4 fichas horizontal 
-/** x (2)
-* X o x x
-*   x (1)
-**/
-+!cuatroFichasEspecialH12 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) & tablero(celda(X+1,Y,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y & X1=X+2 & X2=X+3 & Y2= Y & X3=X+1 & Y3=Y-1 & Color > 4  & size(N) & X < N-3 & Y > 0
-			, ListaFichas);
-	
-	.print("cuatroFichasEspecialH12: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+2);
-		
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+1,B-1,down,N);
-		}
-		-cont(N);
-		}
-		.
-		
-/**
- * 4 fichas, tomando como referencia X
- *	  x(1) 
- *	X o x(2)
- *	x x 	
-*/		
-+!cuatroFichasEspecialC41 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) & tablero(celda(X+1,Y,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y+1 & X1=X & X2=X+1 & Y2= Y+1 & X3=X+1 & Y3=Y-1 & Color > 4  & size(N) & X < N & X > 0 & Y > 0
-			, ListaFichas);
-	
-	.print("cuatroFichasEspecialC41: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+4);
-		
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+1,B-1,down,N);
-		}
-		-cont(N);
-		}
-		.
-/**
- * 4 fichas, tomando como referencia X
- *	  x(1) 
- *	X o x(2)
- *	x x 	
-*/		
-+!cuatroFichasEspecialC42 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) & tablero(celda(X+1,Y,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y+1 & X1=X & X2=X+1 & Y2= Y+1 & X3=X+2 & Y3=Y & Color > 4  & size(N) & X < N & X > 0 & Y > 0 &  Y > N-1
-			, ListaFichas);
-	
-	.print("cuatroFichasEspecialC42: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		?estructura(X1,Y1,Dir,Max);
-		
-		?cont(P);
-		-cont(P);
-		+cont(P+4);
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+2,B,left,N);
-		}
-		-cont(N);
-		}
-		.
-/**
- * 4 fichas, tomando como referencia la X 
- *	     x (1)
- *	(2)x o x
- *	     X x	
-*/
-+!cuatroFichasEspecialC31 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) & tablero(celda(X,Y-1,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y & X1=X+1 & X2=X+1 & Y2= Y-1 & X3=X & Y3=Y-2 & Color > 4  & size(N) & X < N  & Y > 0 & Y < N
-			, ListaFichas);
-
-	.print("cuatroFichasEspecialC31: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+4);
-		
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A,B-2,down,N);
-		}
-		-cont(N);
-		}
-		.
-/**
- * 4 fichas, tomando como referencia la X 
- *	     x (1)
- *	(2)x o x
- *	     X x	
-*/
-+!cuatroFichasEspecialC32 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) & tablero(celda(X,Y-1,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y & X1=X+1 & X2=X+1 & Y2= Y-1 & X3=X-1 & Y3=Y-1 & Color > 4  & size(N) & X < N & X > 0 & Y > 0 & Y < N
-			, ListaFichas);
-	
-	
-	.print("cuatroFichasEspecialC32: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+4);
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A-1,B-1,right,N);
-		}
-		-cont(N);
-		}
-		.
-/**
- * 4 fichas, tomando como referencia la X
- *	      X x
- *   (1)x o x
- *	      x
- *		 (2)
-*/
-+!cuatroFichasEspecialC21 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) & tablero(celda(X,Y+1,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y & X1=X+1 & X2=X+1 & Y2= Y+1 & X3=X-1 & Y3=Y+1 & Color > 4  & size(N) & X < N  & Y < N-1 & Y < N
-			, ListaFichas);
-	
-	.print("cuatroFichasEspecialC21: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+4);
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A-1,B+1,right,N);			
-		}
-		-cont(N);
-		}
-		.
-/**
- * 4 fichas, tomando como referencia la X
- *	      X x
- *   (1)x o x
- *	      x
- *		 (2)
-*/
-+!cuatroFichasEspecialC22 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) & tablero(celda(X,Y+1,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y & X1=X+1 & X2=X+1 & Y2= Y+1 & X3=X & Y3=Y+2 & Color > 4  & size(N) & X < N  & X > 0 & Y < N
-			, ListaFichas);
-	
-.print("cuatroFichasEspecialC22: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+4);
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A,B+2,up,N);
-		}
-		-cont(N);
-		}
-		.
-
-/**
- * 4 fichas, tomando como referencia la X
- *	X x 
- *	x o x (1)
- *	  x	(2)
-*/
-+!cuatroFichasEspecialC12 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) & tablero(celda(X+1,Y+1,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y & X1=X+1 & X2=X & Y2= Y+1 & X3=X+1 & Y3=Y+2 & Color > 4  & size(N) & X < N  & Y < N-1 & Y < N
-			, ListaFichas);
-	
-.print("cuatroFichasEspecialC12: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+4);
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+1,B+2,up,N);
-			
-		}
-		-cont(N);
-		}
-		.
-
-		
-/**
- * 4 fichas, tomando como referencia la X
- *	X x 
- *	x o x (1)
- *	  x	(2)
-*/
-+!cuatroFichasEspecialC11 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) & tablero(celda(X+1,Y+1,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y & X1=X+1 & X2=X & Y2= Y+1 & X3=X+2 & Y3=Y+1 & Color > 4  & size(N) & X < N & not( Y<N-1) & X < N-1 & Y < N
-			, ListaFichas);
-	
-.print("cuatroFichasEspecialC11: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+4);
-		?cont(N);
-	
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+2,B+1,left,N);
-		}
-		-cont(N);
-		}
-		.		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-//5 fichas en T tumbada a la derecha, tomamos como referencia la X
-/*  x
-X x o x
-    x 
-*/		
-+!cincoFichasEspecialTDer <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3,X4,Y4),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) &
-			tablero(celda(X4,Y4,_),ficha(Color,_))& tablero(celda(X+2,Y,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y & X1=X+1 & X2=X+2 & Y2= Y-1 & X3=X+2 & Y3=Y+1 & X4 = X+3 & Y4 = Y & Color > 4  & size(N) & X < N  & Y < N-1 & X < N
-			, ListaFichas);
-	.print("cincoFichasEspecialTDer: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3,A4,B4), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		!contadorPuntuacion(A4,B4);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+6);
-		?cont(N);
-	
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+3,B,left,N);
-		}
-		-cont(N);
-		}
-		.              
-//5 fichas en T tumbada a la izquierda, tomando como referencia la X
-/*
-  X
-x o x x
-  x
-*/
-+!cincoFichasEspecialTIzq <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3,X4,Y4),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) & 
-			tablero(celda(X4,Y4,_),ficha(Color,_))& tablero(celda(X,Y+1,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y+2 & X1=X & X2=X+1 & Y2= Y+1 & X3=X+2 & Y3=Y+1 & X4 = X-1 & Y4 = Y+1 & Color > 4  & size(N) & X < N-2  & Y < N-1 & X > 0
-			, ListaFichas);
-	
-	.print("cincoFichasEspecialTIzq: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3,A4,B4), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		!contadorPuntuacion(A4,B4);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+6);
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A-1,B+1,right,N);
-		}
-		-cont(N);
-		}
-		.    
-
-//5 fichas en T invertida, tomando como referencia la X 
-/*
-   x
-   x
- X o x
-   x
-*/ 
-+!cincoFichasEspecialTIvertida <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3,X4,Y4),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) &
-			tablero(celda(X4,Y4,_),ficha(Color,_))& tablero(celda(X+1,Y,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y & X1=X+2 & X2=X+1 & Y2= Y-1 & X3=X+1 & Y3=Y-2 & X4 = X+1 & Y4 = Y+1 & Color > 4  & size(N) & X < N-1  & Y < N-1 & Y> 1
-			, ListaFichas);
-	
-.print("cincoFichasEspecialTIvertida: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3,A4,B4), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		!contadorPuntuacion(A4,B4);	
-		?estructura(X1,Y1,Dir,Max);
-	?cont(P);
-		-cont(P);
-		+cont(P+6);
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+1,B+1,up,N);
-		}
-		-cont(N);
-		}
-		.  
-//5 fichas en T normal, tomando como referencia la X 
-/*
-  x  
-X o x
-  x
-  x
-*/
-+!cincoFichasEspecialT <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3,X4,Y4),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) &
-			tablero(celda(X4,Y4,_),ficha(Color,_))& tablero(celda(X+1,Y,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y & X1=X+2 & X2=X+1 & Y2= Y+1 & X3=X+1 & Y3=Y+2 & X4 = X+1 & Y4 = Y-1 & Color > 4  & size(N) & X < N-1  & Y < N-1 & Y> 0
-			, ListaFichas);
-	
-.print("cincoFichasEspecialT: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3,A4,B4), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		!contadorPuntuacion(A4,B4);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+6);
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+1,B-1,down,N);
-		}
-		-cont(N);
-		}
-		.       
-//5 fichas en vertical, tomo xomo referencia la X 
-/*
-     X
-     x
-     x
-(1)x o x (2)
-     x 
-  */
-+!cincoFichasEspecialV1 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3,X4,Y4),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) &
-			tablero(celda(X4,Y4,_),ficha(Color,_))& tablero(celda(X,Y+3,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y+1 & X1=X & X2=X & Y2= Y+2 & X3=X & Y3=Y+4 & X4 = X+1 & Y4 = Y+3 & Color > 4  & size(N) & X < N & Y < N-3
-			, ListaFichas);
-	
-.print("cincoFichasEspecialV1: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3,A4,B4), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		!contadorPuntuacion(A4,B4);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+8);
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+1,B+3,left,N);
-		}
-		-cont(N);
-		}
-		.  
-//5 fichas en vertical, tomo xomo referencia la X 
-/*
-     X
-     x
-     x
-(1)x o x (2)
-     x 
-  */
-+!cincoFichasEspecialV2 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3,X4,Y4),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) &
-			tablero(celda(X4,Y4,_),ficha(Color,_))& tablero(celda(X,Y+3,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y+1 & X1=X & X2=X & Y2= Y+2 & X3=X & Y3=Y+4 & X4 = X-1 & Y4 = Y+3 & Color > 4  & size(N) & X > 0 & Y < N-3
-			, ListaFichas);
-	
-.print("cincoFichasEspecialV2: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3,A4,B4), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		!contadorPuntuacion(A4,B4);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+8);
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A-1,B+3,right,N);
-		}
-		-cont(N);
-		}
-		.  
-//5 fichas en horizontal.
-
-/*
-      x (2)
-X x x o x
-      x (1)
-*/		
-+!cincoFichasEspecialH1 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3,X4,Y4),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) &
-			tablero(celda(X4,Y4,_),ficha(Color,_))& tablero(celda(X+3,Y,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y & X1=X+1 & X2=X+2 & Y2= Y & X3=X+4 & Y3=Y & X4 = X+3 & Y4 = Y+1 & Color > 4  & size(N) & X < N-3 & Y < N
-			, ListaFichas);
-	
-.print("cincoFichasEspecialH1: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3,A4,B4), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		!contadorPuntuacion(A4,B4);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+8);
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+3,B+1,up,N);
-		}
-		-cont(N);
-		}
-		.             
-//5 fichas en horizontal.
-
-/*
-      x (2)
-X x x o x
-      x (1)
-*/		
-+!cincoFichasEspecialH2 <-
-	.findall(fichas(X,Y,X1,Y1,X2,Y2,X3,Y3,X4,Y4),
-			tablero(celda(X,Y,_),ficha(Color,_)) &
-			tablero(celda(X1,Y1,_),ficha(Color,_))&
-			tablero(celda(X2,Y2,_),ficha(Color,_)) & 
-			tablero(celda(X3,Y3,_),ficha(Color,_)) &
-			tablero(celda(X4,Y4,_),ficha(Color,_))& tablero(celda(X+3,Y,_),ficha(Color2,_)) & Color2 > 4 &Y1=Y & X1=X+1 & X2=X+2 & Y2= Y & X3=X+4 & Y3=Y & X4 = X+3 & Y4 = Y-1 & Color > 4  & size(N) & X < N-3 & Y > 0
-			, ListaFichas);
-	
-.print("cincoFichasEspecialH2: ",ListaFichas);
-	for (.member(fichas(A,B,A1,B1,A2,B2,A3,B3,A4,B4), ListaFichas)){  
-		+cont(0);
-		!contadorPuntuacion(A,B);
-		!contadorPuntuacion(A1,B1);
-		!contadorPuntuacion(A2,B2);	
-		!contadorPuntuacion(A3,B3);	
-		!contadorPuntuacion(A4,B4);	
-		?estructura(X1,Y1,Dir,Max);
-		?cont(P);
-		-cont(P);
-		+cont(P+8);
-		?cont(N);
-		
-		if(Max<N){
-			-estructura(X1,Y1,Dir,Max);
-			+estructura(A+3,B-1,down,N);
-		}
-		-cont(N);
-		}
-
-		.    
-+!contadorPuntuacion(X,Y) :  tablero(celda(X,Y,_),ficha(Color,Tipo)) & cont(N) <-
-	if ( Tipo == ip ) {
-			-+cont(N+2);
-		}else{ 
-		if (Tipo == ct){
-			-+cont(N+8);
+//Realizacion de la jugada
++!realizarMovimiento <-
+	//?randomMov(moverDesdeEnDireccion(pos(P1,P2),Dir));					
+//	?movPrueba(moverDesdeEnDireccion(pos(P1,P2),Dir));
+	+buscarMejorJugada;
+	-buscarMejorJugada;
+	if(grupo5Especial(A1,B1,D1)){
+		.print("Quiero eliminar un grupo de 5 Especial");X=A1;Y=B1;D=D1;
+	}else{
+		if(grupoTEspecial(A2,B2,D2)){
+			.print("Quiero eliminar un grupo de T Especial");X=A2;Y=B2;D=D2;
 		}else{
-		if (Tipo == gs){
-		  -+cont(N+4);
-		}else{
-		if (Tipo == co){
-			-+cont(N+6);
-		}else {
-		-+cont(N+1);
+			if(grupo4Especial(A3,B3,D3)){
+				.print("Quiero eliminar un grupo de 4 Especial");X=A3;Y=B3;D=D3;
+			}else{
+				if(grupoCuadradoEspecial(A4,B4,D4)){
+					.print("Quiero eliminar un grupo cuadrado Especial");X=A4;Y=B4;D=D4;
+				}else{
+					if(grupo3Especial(A5,B5,D5)){
+						.print("Quiero eliminar un grupo de 3 Especial");X=A5;Y=B5;D=D5;
+					}else{
+						if(grupo5(A6,B6,D6)){
+							.print("Quiero eliminar un grupo de 5");X=A6;Y=B6;D=D6;
+						}else{
+							if(grupoT(A7,B7,D7)){
+								.print("Quiero eliminar un grupo de T");X=A7;Y=B7;D=D7;
+							}else{
+								if(grupo4(A8,B8,D8)){
+									.print("Quiero eliminar un grupo de 4");X=A8;Y=B8;D=D8;
+								}else{
+									if(grupoCuadrado(A9,B9,D9)){
+										.print("Quiero eliminar un grupo cuadrado");X=A9;Y=B9;D=D9;
+									}else{
+										if(grupo3(A10,B10,D10)){
+											.print("Quiero eliminar un grupo de 3");X=A10;Y=B10;D=D10;
+										}else{
+											.print("Quiero eliminar un grupo Random");?randomMov(moverDesdeEnDireccion(pos(P1,P2),Dir));
+											X=P1;Y=P2;D=Dir;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
-		
+	}
 	
-		};};};.
+	.print("Intentando mover desde la posicion (",X,",",Y,") en direccion ",D);
+	.wait(20);
+	.send(judge,tell,moverDesdeEnDireccion(pos(X,Y),D));
+	.send(judge,untell,moverDesdeEnDireccion(pos(X,Y),D)).
+
+//Movimiento realizado correctamente
++valido[source(judge)] <- 
+	+eliminarDatosTablero;
+	-eliminarDatosTablero;
+	.print("Movimiento correcto realizado").
+
+
+//Movimiento realizado entre dos fichas del mismo color
++tryAgain[source(judge)] <- 
+	!realizarMovimiento.
+
+//Movimiento realizado fuera del tablero
++invalido(fueraTablero,N)[source(judge)] : N<=3 <-
+	!realizarMovimiento.
+
++invalido(fueraTablero,N)[source(judge)] : N>3 <-
+	.send(judge,tell,pasoTurno);
+	.send(judge,untell,pasoTurno).
+
+//Movimiento realizado fuera de turno
++invalido(fueraTurno,N)[source(judge)].
+
++deleteTableroBB[source(judge)]:true <-
+	.abolish(tablero(_,_));.
+
+//Plan por defecto a ejecutar en caso desconocido.
++Default[source(A)]: not A=self  & not tablero(C,F) & not size(N) <- 
+	.print("El agente ",A," se comunica conmigo, pero no lo entiendo!").
+
