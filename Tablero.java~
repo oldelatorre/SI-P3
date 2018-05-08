@@ -124,20 +124,17 @@ public class Tablero extends Environment {
       void reset(){ //Generacion del tablero de juego con una distribucion especifica. (Se ha utilizado la distribucion en diagonal puesta como ejemplo por el profesor)
         removePerceptsByUnif("judge",Literal.parseLiteral("addTablero(X,Y)"));
         int color = 16;
-		int prop = 1;
         for(int i = 0; i < GSize; i++){
           for(int j = 0; j < GSize; j++){
             steakType[i][j]="in";
             set(color,i,j);
             int judgeColor = getJudgeColor(color);
-            addPercept("judge",Literal.parseLiteral("addTablero(celda(" + i + "," + j + ","+prop+"),ficha(" + judgeColor + ",in))")); //Envio de la informacion correspondiente a la generacion de una posicion del tablero
+            addPercept("judge",Literal.parseLiteral("addTablero(celda(" + i + "," + j + ",0),ficha(" + judgeColor + ",in))")); //Envio de la informacion correspondiente a la generacion de una posicion del tablero
             if (color < 512) {color = color * 2;}
             else {color = 16;};
           };
           if (color < 512) {color = color * 2;}
           else {color = 16;};
-		  if(prop ==1){prop=0;}
-		  else prop=1;
         };
       }
 

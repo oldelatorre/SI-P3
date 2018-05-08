@@ -1,26 +1,16 @@
-//Player 2
-
 /* Initial beliefs and rules */
 igual(X,Y,X,Y).	
-
 igualColor(X,Y,C,C):-datos(X,Y,C).
-
 datos(X,Y,Color,Tipo,Prop):- tablero(celda(X,Y,Prop),ficha(Color,Tipo)).
-
 fichaEspecial(X,Y):-datos(X,Y,_,Tipo,_) & (Tipo = ct | Tipo = co | Tipo = gs | Tipo = ip).
-
 esObstaculo(X,Y):-tablero(celda(X,Y,_),ficha(-1,_)).
-
-
 //Agrupaciones de 3
 grupo3FilA(X,Y,C,A,B) :- // #_#
 	size(N) & X-1 >= 0 & X+1 < N & datos(X-1,Y,C) & datos(X,Y,_) & datos(X+1,Y,C) &
 	not igual(X-1,Y,A,B) & not igual(X+1,Y,A,B).
-	
 grupo3FilB(X,Y,C,A,B) :- // _##
 	size(N) & X+2 < N & datos(X+1,Y,C) & datos(X,Y,_) & datos(X+2,Y,C) &
 	not igual(X+1,Y,A,B) & not igual(X+2,Y,A,B).
-	
 grupo3FilC(X,Y,C,A,B) :- // ##_
 	size(N) & X-2 >= 0 & datos(X-1,Y,C) & datos(X,Y,_) & datos(X-2,Y,C) &
 	not igual(X-1,Y,A,B) & not igual(X-2,Y,A,B).
@@ -28,133 +18,96 @@ grupo3FilC(X,Y,C,A,B) :- // ##_
 grupo3ColA(X,Y,C,A,B) :- // #_# (ficha desde medio)
 	size(N) & Y-1 >= 0 & Y+1 < N & datos(X,Y-1,C) & datos(X,Y,_) & datos(X,Y+1,C) &
 	not igual(X,Y-1,A,B) & not igual(X,Y+1,A,B).
-	
 grupo3ColB(X,Y,C,A,B) :- // _## (ficha desde medio)
 	size(N) & Y+2 < N & datos(X,Y+1,C) & datos(X,Y,_) & datos(X,Y+2,C) &
 	not igual(X,Y+1,A,B) & not igual(X,Y+2,A,B).
-	
 grupo3ColC(X,Y,C,A,B) :- // #_# (ficha desde medio)
 	size(N) & Y-2 >= 0 & datos(X,Y-1,C) & datos(X,Y,_) & datos(X,Y-2,C) &
 	not igual(X,Y-1,A,B) & not igual(X,Y-2,A,B).
-	
-	
 //Con ficha especial
-
 grupo3FilAEspecial(X,Y,C,A,B) :- // #_#
 	size(N) & X-1 >= 0 & X+1 < N & datos(X-1,Y,C) & datos(X,Y,_) & datos(X+1,Y,C) &
 	not igual(X-1,Y,A,B) & not igual(X+1,Y,A,B)  & not igual(X,Y+1,A,B) & (fichaEspecial(X-1,Y) | fichaEspecial(X+1,Y) | fichaEspecial(A,B)).
-	
 grupo3FilBEspecial(X,Y,C,A,B) :- // _##
 	size(N) & X+2 < N & datos(X+1,Y,C) & datos(X,Y,_) & datos(X+2,Y,C) &
 	not igual(X+1,Y,A,B) & not igual(X+2,Y,A,B) & (fichaEspecial(X+1,Y) | fichaEspecial(X+2,Y) | fichaEspecial(A,B)).
-	
 grupo3FilCEspecial(X,Y,C,A,B) :- // ##_
 	size(N) & X-2 >= 0 & datos(X-1,Y,C) & datos(X,Y,_) & datos(X-2,Y,C) &
 	not igual(X-1,Y,A,B) & not igual(X-2,Y,A,B) & (fichaEspecial(X-1,Y) | fichaEspecial(X-2,Y) | fichaEspecial(A,B)).
 	
-	
 grupo3ColAEspecial(X,Y,C,A,B) :- // #_# (ficha desde medio)
 	size(N) & Y-1 >= 0 & Y+1 < N & datos(X,Y-1,C) & datos(X,Y,_) & datos(X,Y+1,C) &
 	not igual(X,Y-1,A,B) & not igual(X,Y+1,A,B) & (fichaEspecial(X,Y-1) | fichaEspecial(X,Y+1) | fichaEspecial(A,B)).
-	
 grupo3ColBEspecial(X,Y,C,A,B) :- // _## (ficha desde medio)
 	size(N) & Y+2 < N & datos(X,Y+1,C) & datos(X,Y,_) & datos(X,Y+2,C) &
 	not igual(X,Y+1,A,B) & not igual(X,Y+2,A,B) & (fichaEspecial(X,Y+1) | fichaEspecial(X,Y+2) | fichaEspecial(A,B)).
-	
 grupo3ColCEspecial(X,Y,C,A,B) :- // #_# (ficha desde medio)
 	size(N) & Y-2 >= 0 & datos(X,Y-1,C) & datos(X,Y,_) & datos(X,Y-2,C) &
 	not igual(X,Y-1,A,B) & not igual(X,Y-2,A,B) & (fichaEspecial(X,Y-1) | fichaEspecial(X,Y-2) | fichaEspecial(A,B)).
-	
 		
 //Agrupaciones de 4
-
 grupo4FilA(X,Y,C,A,B) :- // #_##
 	size(N) & X-1 >= 0 & X+2 < N & datos(X-1,Y,C) & datos(X,Y,_) & datos(X+1,Y,C) & datos(X+2,Y,C) &
 	not igual(X-1,Y,A,B) & not igual(X+1,Y,A,B) & not igual(X+2,Y,A,B).
-	
 grupo4FilB(X,Y,C,A,B) :- // ##_#
 	size(N) & X-2 >= 0 & X+1 < N & datos(X-1,Y,C) & datos(X-2,Y,C) & datos(X,Y,_) & datos(X+1,Y,C) &
 	not igual(X-1,Y,A,B) & not igual(X-2,Y,A,B) & not igual(X+1,Y,A,B).	
-	
 grupo4ColA(X,Y,C,A,B) :- // #_## (Vertical)
 	size(N) & Y-1 >= 0 & Y+2 < N & datos(X,Y-1,C) & datos(X,Y,_) & datos(X,Y+1,C) & datos(X,Y+2,C) &
 	not igual(X,Y-1,A,B) & not igual(X,Y+1,A,B) & not igual(X,Y+2,A,B).
-	
 grupo4ColB(X,Y,C,A,B) :- // ##_# (Vertical)
 	size(N) & Y-2 >= 0 & Y+1 < N & datos(X,Y-1,C) & datos(X,Y-2,C) & datos(X,Y,_) & datos(X,Y+1,C) &
 	not igual(X,Y-1,A,B) & not igual(X,Y-2,A,B) & not igual(X,Y+1,A,B).
-	
-	
 //Con ficha especial
-
 grupo4FilAEspecial(X,Y,C,A,B) :- // #_##
 	size(N) & X-1 >= 0 & X+2 < N & datos(X-1,Y,C) & datos(X,Y,_) & datos(X+1,Y,C) & datos(X+2,Y,C) &
 	not igual(X-1,Y,A,B) & not igual(X+1,Y,A,B) & not igual(X+2,Y,A,B) &
 	(fichaEspecial(X-1,Y) | fichaEspecial(X+1,Y) | fichaEspecial(X+2,Y) | fichaEspecial(A,B)).
-	
 grupo4FilBEspecial(X,Y,C,A,B) :- // ##_#
 	size(N) & X-2 >= 0 & X+1 < N & datos(X-1,Y,C) & datos(X-2,Y,C) & datos(X,Y,_) & datos(X+1,Y,C) &
 	not igual(X-1,Y,A,B) & not igual(X-2,Y,A,B) & not igual(X+1,Y,A,B) &
 	(fichaEspecial(X-1,Y) | fichaEspecial(X-1,Y) | fichaEspecial(X+1,Y) | fichaEspecial(A,B)).	
-	
 grupo4ColAEspecial(X,Y,C,A,B) :- // #_## (Vertical)
 	size(N) & Y-1 >= 0 & Y+2 < N & datos(X,Y-1,C) & datos(X,Y,_) & datos(X,Y+1,C) & datos(X,Y+2,C) &
 	not igual(X,Y-1,A,B) & not igual(X,Y+1,A,B) & not igual(X,Y+2,A,B) &
 	(fichaEspecial(X,Y-1) | fichaEspecial(X,Y+1) | fichaEspecial(X,Y+2) | fichaEspecial(A,B)).
-	
 grupo4ColBEspecial(X,Y,C,A,B) :- // ##_# (Vertical)
 	size(N) & Y-2 >= 0 & Y+1 < N & datos(X,Y-1,C) & datos(X,Y-2,C) & datos(X,Y,_) & datos(X,Y+1,C) &
 	not igual(X,Y-1,A,B) & not igual(X,Y-2,A,B) & not igual(X,Y+1,A,B) &
 	(fichaEspecial(X,Y-1) | fichaEspecial(X,Y-2) | fichaEspecial(X,Y+1) | fichaEspecial(A,B)).
-	
-	
 //Cuadrado	
-
 grupo4SquareA(X,Y,C,A,B) :- // hueco arriba-izquierda
 	size(N) & X+1 < N & Y+1 < N & datos(X,Y,_) & datos(X+1,Y,C) & datos(X,Y+1,C) & datos(X+1,Y+1,C) &
 	not igual(X+1,Y,A,B) & not igual(X,Y+1,A,B) & not igual(X+1,Y+1,A,B).
-	
 grupo4SquareB(X,Y,C,A,B) :- // hueco arriba-derecha
 	size(N) & X-1 >= 0 & Y+1 < N & datos(X,Y,_) & datos(X-1,Y,C) & datos(X,Y+1,C) & datos(X-1,Y+1,C) &
 	not igual(X-1,Y,A,B) & not igual(X,Y+1,A,B) & not igual(X-1,Y+1,A,B).
-	
 grupo4SquareC(X,Y,C,A,B) :- // hueco abajo-izquierda
 	size(N) & X+1 < N & Y-1 >= 0 & datos(X,Y,_) & datos(X+1,Y,C) & datos(X,Y-1,C) & datos(X+1,Y-1,C) &
 	not igual(X+1,Y,A,B) & not igual(X,Y-1,A,B) & not igual(X+1,Y-1,A,B).
-	
 grupo4SquareD(X,Y,C,A,B) :- // hueco abajo-derecha
 	size(N) & X-1 >= 0 & Y+1 < N & datos(X,Y,_) & datos(X-1,Y,C) & datos(X,Y-1,C) & datos(X-1,Y-1,C) &
 	not igual(X-1,Y,A,B) & not igual(X,Y-1,A,B) & not igual(X-1,Y-1,A,B).	
-	
-	
 //Con Ficha Especial
-
 grupo4SquareAEspecial(X,Y,C,A,B) :- // hueco arriba-izquierda
 	size(N) & X+1 < N & Y+1 < N & datos(X,Y,_) & datos(X+1,Y,C) & datos(X,Y+1,C) & datos(X+1,Y+1,C) &
 	not igual(X+1,Y,A,B) & not igual(X,Y+1,A,B) & not igual(X+1,Y+1,A,B) &
 	(fichaEspecial(X+1,Y) | fichaEspecial(X,Y+1) | fichaEspecial(X+1,Y+1) | fichaEspecial(A,B)).
-	
 grupo4SquareBEspecial(X,Y,C,A,B) :- // hueco arriba-derecha
 	size(N) & X-1 >= 0 & Y+1 < N & datos(X,Y,_) & datos(X-1,Y,C) & datos(X,Y+1,C) & datos(X-1,Y+1,C) &
 	not igual(X-1,Y,A,B) & not igual(X,Y+1,A,B) & not igual(X-1,Y+1,A,B) &
 	(fichaEspecial(X-1,Y) | fichaEspecial(X,Y+1) | fichaEspecial(X-1,Y+1) | fichaEspecial(A,B)).
-	
 grupo4SquareCEspecial(X,Y,C,A,B) :- // hueco abajo-izquierda
 	size(N) & X+1 < N & Y-1 >= 0 & datos(X,Y,_) & datos(X+1,Y,C) & datos(X,Y-1,C) & datos(X+1,Y-1,C) &
 	not igual(X+1,Y,A,B) & not igual(X,Y-1,A,B) & not igual(X+1,Y-1,A,B) &
 	(fichaEspecial(X+1,Y) | fichaEspecial(X,Y-1) | fichaEspecial(X+1,Y-1) | fichaEspecial(A,B)).
-	
 grupo4SquareDEspecial(X,Y,C,A,B) :- // hueco abajo-derecha
 	size(N) & X-1 >= 0 & Y+1 < N & datos(X,Y,_) & datos(X-1,Y,C) & datos(X,Y-1,C) & datos(X-1,Y-1,C) &
 	not igual(X-1,Y,A,B) & not igual(X,Y-1,A,B) & not igual(X-1,Y-1,A,B) &
 	(fichaEspecial(X-1,Y) | fichaEspecial(X,Y-1) | fichaEspecial(X-1,Y-1) | fichaEspecial(A,B)).
-	
-	
 //Agrupación de 5
-
 grupo5Fil(X,Y,C,A,B) :- size(N) & X+2 < N & X-2 >= 0 & datos(X+1,Y,C) & datos(X+2,Y,C) & datos(X,Y,_) & datos(X-1,Y,C) & datos(X-2,Y,C) &
 	not igual(X+1,Y,A,B) & not igual(X+2,Y,A,B) & not igual(X-1,Y,A,B) & not igual(X-2,Y,A,B).
-	
 //(Medio vertical)
 grupo5Col(X,Y,C,A,B) :- size(N) & Y+2 < N & Y-2 >= 0 & datos(X,Y+1,C) & datos(X,Y+2,C) & datos(X,Y,_) & datos(X,Y-1,C) & datos(X,Y-2,C) &
 	not igual(X,Y+1,A,B) & not igual(X,Y+2,A,B) & not igual(X,Y-1,A,B) & not igual(X,Y-2,A,B).
@@ -163,64 +116,44 @@ grupo5Col(X,Y,C,A,B) :- size(N) & Y+2 < N & Y-2 >= 0 & datos(X,Y+1,C) & datos(X,
 grupo5FilEspecial(X,Y,C,A,B) :- size(N) & X+2 < N & X-2 >= 0 & datos(X+1,Y,C) & datos(X+2,Y,C) & datos(X,Y,_) & datos(X-1,Y,C) & datos(X-2,Y,C) &
 	not igual(X+1,Y,A,B) & not igual(X+2,Y,A,B) & not igual(X-1,Y,A,B) & not igual(X-2,Y,A,B) &
 	(fichaEspecial(X+1,Y) | fichaEspecial(X+2,Y) | fichaEspecial(X-1,Y) | fichaEspecial(X-2,Y) | fichaEspecial(A,B)).
-	
 grupo5ColEspecial(X,Y,C,A,B) :- size(N) & Y+2 < N & Y-2 >= 0 & datos(X,Y+1,C) & datos(X,Y+2,C) & datos(X,Y,_) & datos(X,Y-1,C) & datos(X,Y-2,C) &
 	not igual(X,Y+1,A,B) & not igual(X,Y+2,A,B) & not igual(X,Y-1,A,B) & not igual(X,Y-2,A,B) &
 	(fichaEspecial(X,Y+1) | fichaEspecial(X,Y+2) | fichaEspecial(X,Y-1) | fichaEspecial(X,Y-2) | fichaEspecial(A,B)).
-	
 //Agrupación 5 en T
 grupo5TN(X,Y,C,A,B) :- size(N) & X-1 >=0 & X+1 < N & Y+2 < N & datos(X-1,Y,C) & datos(X,Y,_) & datos(X+1,Y,C) & datos(X,Y+1,C) & datos(X,Y+2,C) &
 	not igual(X-1,Y,A,B) & not igual(X+1,Y,A,B) & not igual(X,Y+1,A,B) & not igual(X,Y+2,A,B).
-	
 grupo5TI(X,Y,C,A,B) :- size(N) & X-1 >=0 & X+1 < N & Y-2 < N & datos(X-1,Y,C) & datos(X,Y,_) & datos(X+1,Y,C) & datos(X,Y-1,C) & datos(X,Y-2,C) &
 	not igual(X-1,Y,A,B) & not igual(X+1,Y,A,B) & not igual(X,Y-1,A,B) & not igual(X,Y-2,A,B).
-	
 grupo5TR(X,Y,C,A,B) :- size(N) & X-2 >=0 & Y+1 < N & Y-1 >=0 & datos(X-1,Y,C) & datos(X-2,Y,C) & datos(X,Y,_) & datos(X,Y+1,C) & datos(X,Y-1,C) &
 	not igual(X-1,Y,A,B) & not igual(X-2,Y,A,B) & not igual(X,Y+1,A,B) & not igual(X,Y-1,A,B).
-	
 grupo5TL(X,Y,C,A,B) :- size(N) & X+1 < N & Y+1 < N & Y-1 >=0 & datos(X+1,Y,C) & datos(X+2,Y,C) & datos(X,Y,_) & datos(X,Y+1,C) & datos(X,Y-1,C) &
 	not igual(X+1,Y,A,B) & not igual(X+2,Y,A,B) & not igual(X,Y+1,A,B) & not igual(X,Y-1,A,B).
-	
 
 grupo5TNEspecial(X,Y,C,A,B) :- size(N) & X-1 >=0 & X+1 < N & Y+2 < N & datos(X-1,Y,C) & datos(X,Y,_) & datos(X+1,Y,C) & datos(X,Y+1,C) & datos(X,Y+2,C) &
 	not igual(X-1,Y,A,B) & not igual(X+1,Y,A,B) & not igual(X,Y+1,A,B) & not igual(X,Y+2,A,B) &
 	(fichaEspecial(X-1,Y) | fichaEspecial(X+1,Y) | fichaEspecial(X,Y+1) | fichaEspecial(X,Y+2) | fichaEspecial(A,B)).
-	
 grupo5TIEspecial(X,Y,C,A,B) :- size(N) & X-1 >=0 & X+1 < N & Y-2 < N & datos(X-1,Y,C) & datos(X,Y,_) & datos(X+1,Y,C) & datos(X,Y-1,C) & datos(X,Y-2,C) &
 	not igual(X-1,Y,A,B) & not igual(X+1,Y,A,B) & not igual(X,Y-1,A,B) & not igual(X,Y-2,A,B) &
 	(fichaEspecial(X-1,Y) | fichaEspecial(X+1,Y) | fichaEspecial(X,Y-1) | fichaEspecial(X,Y-2) | fichaEspecial(A,B)).
-	
 grupo5TREspecial(X,Y,C,A,B) :- size(N) & X-2 >=0 & Y+1 < N & Y-1 >=0 & datos(X-1,Y,C) & datos(X-2,Y,C) & datos(X,Y,_) & datos(X,Y+1,C) & datos(X,Y-1,C) &
 	not igual(X-1,Y,A,B) & not igual(X-2,Y,A,B) & not igual(X,Y+1,A,B) & not igual(X,Y-1,A,B) &
 	(fichaEspecial(X-1,Y) | fichaEspecial(X-2,Y) | fichaEspecial(X,Y+1) | fichaEspecial(X,Y-1) | fichaEspecial(A,B)).
-	
 grupo5TLEspecial(X,Y,C,A,B) :- size(N) & X+1 < N & Y+1 < N & Y-1 >=0 & datos(X+1,Y,C) & datos(X+2,Y,C) & datos(X,Y,_) & datos(X,Y+1,C) & datos(X,Y-1,C) &
 	not igual(X+1,Y,A,B) & not igual(X+2,Y,A,B) & not igual(X,Y+1,A,B) & not igual(X,Y-1,A,B) &
 	(fichaEspecial(X+1,Y) | fichaEspecial(X+2,Y) | fichaEspecial(X,Y+1) | fichaEspecial(X,Y-1) | fichaEspecial(A,B)).
 
 //Para elegir la agrupacion prioritaria
 grupo3(X,Y,C,A,B):- grupo3FilA(X,Y,C,A,B) | grupo3FilB(X,Y,C,A,B) | grupo3FilC(X,Y,C,A,B) | grupo3ColA(X,Y,C,A,B) | grupo3ColB(X,Y,C,A,B) | grupo3ColC(X,Y,C,A,B).	
-
 grupo4(X,Y,C,A,B):- grupo4FilA(X,Y,C,A,B) | grupo4FilB(X,Y,C,A,B) | grupo4ColA(X,Y,C,A,B) | grupo4ColB(X,Y,C,A,B).
-
 grupoCuadrado(X,Y,C,A,B):- grupo4SquareA(X,Y,C,A,B) | grupo4SquareB(X,Y,C,A,B) | grupo4SquareC(X,Y,C,A,B) | grupo4SquareD(X,Y,C,A,B).
-
 grupoT(X,Y,C,A,B):- grupo5TN(X,Y,C,A,B) | grupo5TI(X,Y,C,A,B) | grupo5TR(X,Y,C,A,B) | grupo5TL(X,Y,C,A,B).
-
 grupo5(X,Y,C,A,B):- grupo5Fil(X,Y,C,A,B) | grupo5Col(X,Y,C,A,B).
-
 //Con especial
-grupo3Especial(X,Y,C,A,B):- grupo3FilAEspecial(X,Y,C,A,B) | grupo3FilBEspecial(X,Y,C,A,B) | grupo3FilCEspecial(X,Y,C,A,B) | grupo3ColAEspecial(X,Y,C,A,B) | grupo3ColBEspecial(X,Y,C,A,B) | grupo3ColCEspecial(X,Y,C,A,B).
-
+grupo3Especial(X,Y,C,A,B):- grupo3FilAEspecial(X,Y,C,A,B) | grupo3FilBEspecial(X,Y,C,A,B) | grupo3FilCEspecial(X,Y,C,A,B) | grupo3ColAEspecial(X,Y,C,A,B) | grupo3ColBEspecial(X,Y,C,A,B) | grupo3ColCEspecial(X,Y,C,A,B).	
 grupo4Especial(X,Y,C,A,B):- grupo4FilAEspecial(X,Y,C,A,B) | grupo4FilBEspecial(X,Y,C,A,B) | grupo4ColAEspecial(X,Y,C,A,B) | grupo4ColBEspecial(X,Y,C,A,B).
-
 grupoCuadradoEspecial(X,Y,C,A,B):- grupo4SquareAEspecial(X,Y,C,A,B) | grupo4SquareBEspecial(X,Y,C,A,B) | grupo4SquareCEspecial(X,Y,C,A,B) | grupo4SquareDEspecial(X,Y,C,A,B).
-
 grupoTEspecial(X,Y,C,A,B):- grupo5TNEspecial(X,Y,C,A,B) | grupo5TIEspecial(X,Y,C,A,B) | grupo5TREspecial(X,Y,C,A,B) | grupo5TLEspecial(X,Y,C,A,B).
-
 grupo5EspecialEspecial(X,Y,C,A,B):- grupo5FilEspecial(X,Y,C,A,B) | grupo5ColEspecial(X,Y,C,A,B).
-
-
 
 datos(X,Y,Color):- tablero(celda(X,Y,_),ficha(Color,_)).
 
@@ -324,7 +257,6 @@ movPrueba(Mov) :- Mov = moverDesdeEnDireccion(pos(1,0),"left").
 	for ( .member(Datos,Lista) ) {
 			-Datos[source(judge)];
 		 }.
-		 
 //Comienzo del turno
 +puedesMover[source(judge)] <- !realizarMovimiento.
 

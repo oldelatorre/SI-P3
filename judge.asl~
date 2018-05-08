@@ -1,6 +1,6 @@
 // Agent judge in project ESEI_SAGA.mas2j
 
-//Autores: Angel Lillo, Óscar de la Torre
+//Autores: Roi Perez Lopez, Martin Puga Egea
 
 /* ----- Initial beliefs and rules ------ */
 
@@ -29,24 +29,16 @@ level(1).
 
 obstacles(10). //Numero de obstaculos a generar
 
-limitPoints(1,100). //Puntuacion a obtener para ganar un nivel
-limitPoints(2,200).
-limitPoints(3,200).
+limitPoints(1,50). //Puntuacion a obtener para ganar un nivel
+limitPoints(2,100).
 
 points(1,player1,0). //Puntuacion de cada jugador en cada nivel [ points(nivel,jugador,puntos) ]
 points(1,player2,0).
 points(2,player1,0).
 points(2,player2,0).
 
-points(3,player1,0).
-points(3,player2,0).
-
-celdas(player1,50).
-celdas(player2,50).
-
 levelWinner(1,none). //Ganador del nivel
 levelWinner(2,none).
-levelWinner(3,none).
 
 finalWinner(none). //Ganador del juego
 
@@ -255,12 +247,11 @@ levelWinner(P1,P2,Winner) :- P1 = P2 & Winner = draw.
 /* ----- Plans ----- */
 
 //Finalizacion de la partida
-+!comienzoTurno : endGame(1) & levelWinner(1,W1) & levelWinner(2,W2) & levelWinner(3,W3)<-
++!comienzoTurno : endGame(1) & levelWinner(1,W1) & levelWinner(2,W2)<-
 		.print(" *  *  *  *  *  *  *  *  * *  RESULTADOS  * *  *  *  *  *  *  *  *  *");
 		.print(" * Ganador Nivel 1 -> ",W1);
 		.print(" * Ganador Nivel 2 -> ",W2);
-		.print(" * Ganador Nivel 3 -> ",W3);
-		!checkFinalWinner(W1,W2,W3);
+		!checkFinalWinner(W1,W2);
 		?finalWinner(FinalWinner);
 		.print(" *  *  *  *  *  *  *  *  * *  *  *  *  *  *  *  *  * *  *  *  *  *  *  *  *  *");
 		.print(" * Ganador de la partida -> ",FinalWinner," !!");
@@ -268,17 +259,17 @@ levelWinner(P1,P2,Winner) :- P1 = P2 & Winner = draw.
 		.print("--- --- --- --- --- Fin del juego --- --- --- --- ---").
 
 //Comprobacion del ganador de la partida
-+!checkFinalWinner(W1,W2,W3) : W1=draw & W2=draw & W3=draw<- -+finalWinner(player1). //Si hay empate en ambos niveles, ganara el jugador uno por ser el que abre la partida
++!checkFinalWinner(W1,W2) : W1=draw & W2=draw <- -+finalWinner(player1). //Si hay empate en ambos niveles, ganara el jugador uno por ser el que abre la partida
 
-+!checkFinalWinner(W1,W2,W3) : W1=draw & W2=draw <- -+finalWinner(W3). //Empate en el primer nivel, por lo tanto gana el jugador que ha ganado el segundo nivel
++!checkFinalWinner(W1,W2) : W1=draw <- -+finalWinner(W2). //Empate en el primer nivel, por lo tanto gana el jugador que ha ganado el segundo nivel
 
-+!checkFinalWinner(W1,W2,W3) : (W1=W2 & W2=W3) | (W1=W2) | (W2=W3) | (W1=W3)  <- -+finalWinner(W1). //Ambos niveles han sido ganados por el mismo jugador y por tanto es el ganador del juego
++!checkFinalWinner(W1,W2) : W1=W2 <- -+finalWinner(W1). //Ambos niveles han sido ganados por el mismo jugador y por tanto es el ganador del juego
 
-+!checkFinalWinner(W1,W2,W3) : points(1,player1,PointsPlayer1Lvl1) & points(2,player1,PointsPlayer1Lvl2) & points(3,player1,PointsPlayer1Lvl3) & points(1,player2,PointsPlayer2Lvl1) & points(2,player2,PointsPlayer2Lvl2) & points(3,player2,PointsPlayer2Lvl3) & ((PointsPlayer1Lvl1+PointsPlayer1Lvl2+PointsPlayer1Lvl3) > (PointsPlayer2Lvl1+PointsPlayer2Lvl2+PointsPlayer2Lvl3)) <- -+finalWinner(player1). //Gana por total de puntos player1
++!checkFinalWinner(W1,W2) : points(1,player1,PointsPlayer1Lvl1) & points(2,player1,PointsPlayer1Lvl2) & points(1,player2,PointsPlayer2Lvl1) & points(2,player2,PointsPlayer2Lvl2) & ((PointsPlayer1Lvl1+PointsPlayer1Lvl2) > (PointsPlayer2Lvl1+PointsPlayer2Lvl2)) <- -+finalWinner(player1). //Gana por total de puntos player1
 
-+!checkFinalWinner(W1,W2,W3) : points(1,player1,PointsPlayer1Lvl1) & points(2,player1,PointsPlayer1Lvl2) & points(3,player1,PointsPlayer1Lvl3) & points(1,player2,PointsPlayer2Lvl1) & points(2,player2,PointsPlayer2Lvl2) & points(3,player2,PointsPlayer2Lvl3) & ((PointsPlayer2Lvl1+PointsPlayer2Lvl2+PointsPlayer2Lvl3) > (PointsPlayer1Lvl1+PointsPlayer1Lvl2+PointsPlayer1Lvl3)) <- -+finalWinner(player2). //Gana por total de puntos player2
++!checkFinalWinner(W1,W2) : points(1,player1,PointsPlayer1Lvl1) & points(2,player1,PointsPlayer1Lvl2) & points(1,player2,PointsPlayer2Lvl1) & points(2,player2,PointsPlayer2Lvl2) & ((PointsPlayer2Lvl1+PointsPlayer2Lvl2) > (PointsPlayer1Lvl1+PointsPlayer1Lvl2)) <- -+finalWinner(player2). //Gana por total de puntos player2
 
-+!checkFinalWinner(W1,W2,W3) <- .print("ERROR en !finalWinner").
++!checkFinalWinner(W1,W2) <- .print("ERROR en !finalWinner").
 
 
 /* ----------------------------------------------------- COMIENZO INTOCABLE ----------------------------------------------------- */
@@ -445,29 +436,6 @@ levelWinner(P1,P2,Winner) :- P1 = P2 & Winner = draw.
 					!checkLevelWinner;
 					?levelWinner(2,Winner);
 					.print("[ GANADOR NIVEL 2: ",Winner," ]");
-					.print("                      ----- ----- ----- NIVEL 3 ----- ----- -----\n");
-					.wait(1000);
-					-+level(3);
-					-+turnoActual(player1);
-					-+jugadasRestantes(100);
-					-jugadasPlayer(player1,_);
-					+jugadasPlayer(player1,0);
-					-jugadasPlayer(player2,_);
-					+jugadasPlayer(player2,0);
-					.abolish(tablero(X,Y));
-					.wait(250);
-					resetTablero(_);
-					.wait(250);
-					!generateObstacles;
-					!updatePlayersTableroBB.
-
-+turnoTerminado(Player) : level(L) & L=3 & (limitPoints(3,LimitPoints)  & points(L,Player,Points) & Points>=LimitPoints) | (jugadasRestantes(N) & N=0) |  (jugadasPlayer(Player,J) & J>=50) | (celdas(Player,C) & C=100) <- //Final del Nivel 3
-					.print("Alcanzado el numero maximo de puntos en el Nivel 3 o dominio total de las celdas");
-					!showPoints;
-					!showCeldas;
-					!checkLevelWinner;
-					?levelWinner(3,Winner);
-					.print("[ GANADOR NIVEL 3: ",Winner," ]");
 					-+endGame(1).
 
 
@@ -481,7 +449,6 @@ levelWinner(P1,P2,Winner) :- P1 = P2 & Winner = draw.
 
 //Mostrar Puntuaciones
 +!showPoints : level(L) & points(L,player1,P1) & points(L,player2,P2) <-	.print("Puntuaciones:  Player 1 -> ",P1,"  //  Player 2 -> ",P2).
-+!showCeldas : celdas(player1,C1) & celdas(player2,C2) <-	.print("Celdas:  Player 1 -> ",C1,"  //  Player 2 -> ",C2).
 
 
 //Comprobacion del ganador de nivel
