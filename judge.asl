@@ -475,8 +475,11 @@ levelWinner(P1,P2,Winner) :- P1 = P2 & Winner = draw.
 					!showPoints;
 					!cambioTurnoMismoJugador(P,N,J). //Cambio de turno sobre el mismo jugador, ya que hay un jugador descalificado
 
-+turnoTerminado(P) <-
++turnoTerminado(P) : level(L)<-
 					!showPoints;
+					if(L=3){
+					!showCeldas;
+					}
 					+cambioTurno(P). //Cambio de turno de forma normal
 
 //Mostrar Puntuaciones
@@ -828,32 +831,86 @@ levelWinner(P1,P2,Winner) :- P1 = P2 & Winner = draw.
 
 
 //Establecer celda como movida para generar sobre ella la ficha especial cuando la explosion es directamente realizada por el movimiento del jugador
-+!setMovedSteak(X,Y,Pattern) : explosionFlag(1) & tablero(celda(X,Y,_),e) & specialSteak(Pattern,Type)<-
++!setMovedSteak(X,Y,Pattern) : explosionFlag(1) & tablero(celda(X,Y,Prop),e) & specialSteak(Pattern,Type) & turnoActual(P) & plNumb(P,Pnum) & level(L) &celdas(player1,C1)&celdas(player2,C2)<-
 
 			-tablero(celda(X,Y,_),_);
-			+tablero(celda(X,Y,0),m);
+			if(L=3){
+			if(P=player1 & (not Prop = 1)){
+				+tablero(celda(X,Y,1),m);
+				-+celdas(P,C1+1);
+				if(Prop =2){
+				-+celdas(player2,C2-1);
+				}
+			}
+			if(P=player2 & (not Prop = 2)){
+				+tablero(celda(X,Y,2),m);
+				-+celdas(P,C2+1);
+				if(Prop =1){
+				-+celdas(player1,C1-1);
+				}
+			}
+			}
+			else{
+			+tablero(celda(X,Y,Prop),m);
+			}
 			-+dualExplosionFlag(1). //Aunque se active el flag, solo se utilizara si explota otro patron contiguo
 +!setMovedSteak(X,Y,Pattern).
 
 //Generacion de la ficha especial acorde al patron que le corresponde tras una explosion
-+!generateSpecialSteak(Pattern,Color) : explosionFlag(1) & tablero(celda(X,Y,_),m) & specialSteak(Pattern,Type)<- //La explosion se produjo directamente por el movimiento del jugador, y la ficha especial se debe de colocar en la ficha movida.
++!generateSpecialSteak(Pattern,Color) : explosionFlag(1) & tablero(celda(X,Y,Prop),m) & specialSteak(Pattern,Type) & turnoActual(P) & level(L) & celdas(player1,C1) & celdas(player2,C2)<- //La explosion se produjo directamente por el movimiento del jugador, y la ficha especial se debe de colocar en la ficha movida.
 			put(Color,X,Y,Type);
 			-tablero(celda(X,Y,_),m);
-			+tablero(celda(X,Y,0),ficha(Color,Type));
+			if(L=3){
+			if(P=player1 & (not Prop = 1)){
+				+tablero(celda(X,Y,1),ficha(Color,Type));
+				-+celdas(P,C1+1);
+				if(Prop =2){
+				-+celdas(player2,C2-1);
+				}
+			}
+			if(P=player2 & (not Prop = 2)){
+				+tablero(celda(X,Y,2),ficha(Color,Type));
+				-+celdas(P,C2+1);
+				if(Prop =1){
+				-+celdas(player1,C1-1);
+				}
+			}
+			}
+			else{
+				+tablero(celda(X,Y,Prop),ficha(Color,Type));
+			}
 			!specialStickGenerationPoints(Type);
 			!dualExplosion.
 
-+!dualExplosion : dualExplosionFlag(F) & F=1 & tablero(celda(NX,NY,_),m)<- //Gestion de la explosion de dos patrones contiguos para evitar problemas en la generacion de fichas especiales
++!dualExplosion : dualExplosionFlag(F) & F=1 & tablero(celda(NX,NY,Prop),m) & turnoActual(P) & level(L) & celdas(player1,C1) & celdas(player2,C2)<- //Gestion de la explosion de dos patrones contiguos para evitar problemas en la generacion de fichas especiales
 			-tablero(celda(NX,NY,_),m);
-			+tablero(celda(NX,NY,0),e);
+			if(L=3){
+			if(P=player1 & (not Prop = 1)){
+				+tablero(celda(X,Y,1),e);
+				-+celdas(P,C1+1);
+				if(Prop =2){
+				-+celdas(player2,C2-1);
+				}
+			}
+			if(P=player2 & (not Prop = 2)){
+				+tablero(celda(X,Y,2),e);
+				-+celdas(P,C2+1);
+				if(Prop =1){
+				-+celdas(player1,C1-1);
+				}
+			}
+			}
+			else{
+			+tablero(celda(NX,NY,Prop),e);
+			}
 			-+dualExplosionFlag(0).
 +!dualExplosion.
 
 //Generacion de ficha especial por explosion de un patron
-+!generateSpecialSteak(Pattern,Color) : explosionFlag(0) & tablero(celda(X,Y,_),e) & specialSteak(Pattern,Type)<-  //La explosion se produjo de forma indirecta por la caida de fichas. La ficha especial se coloca de forma aleatoria por unificacion.
++!generateSpecialSteak(Pattern,Color) : explosionFlag(0) & tablero(celda(X,Y,Prop),e) & specialSteak(Pattern,Type)<-  //La explosion se produjo de forma indirecta por la caida de fichas. La ficha especial se coloca de forma aleatoria por unificacion.
 			put(Color,X,Y,Type);
-			-tablero(celda(X,Y,_),e);
-			+tablero(celda(X,Y,0),ficha(Color,Type));
+			-tablero(celda(X,Y,Prop),e);
+			+tablero(celda(X,Y,Prop),ficha(Color,Type));
 			!specialStickGenerationPoints(Type).
 +!generateSpecialSteak(Pattern,Color).
 
@@ -865,9 +922,28 @@ levelWinner(P1,P2,Winner) :- P1 = P2 & Winner = draw.
 
 
 //Gestion de explosiones segun el tipo de ficha
-+!explosion(X,Y) : tablero(celda(X,Y,_),ficha(C,T)) & direction(D) & turnoActual(A) & level(L) & points(L,A,P)<-
-				-tablero(celda(X,Y,_),_);//Primero se elimina la ficha seleccionada, luego las otras fichas afectadas en caso de ser necesario
-				+tablero(celda(X,Y,0),e);
++!explosion(X,Y) : tablero(celda(X,Y,Prop),ficha(C,T)) & direction(D) & turnoActual(A) & level(L) & points(L,A,P) & celdas(player1,C1) & celdas(player2,C2)<-
+				-tablero(celda(X,Y,Prop),_);//Primero se elimina la ficha seleccionada, luego las otras fichas afectadas en caso de ser necesario
+				if(L=3){
+					if(A=player1 & (not Prop = 1)){
+						+tablero(celda(X,Y,1),e);
+						-+celdas(P,C1+1);
+						if(Prop =2){
+							-+celdas(player2,C2-1);
+						}
+					}
+					if(A=player2 & (not Prop = 2)){
+						+tablero(celda(X,Y,2),e);
+						-+celdas(P,C2+1);
+						if(Prop =1){
+							-+celdas(player1,C1-1);
+						}
+					}
+				}
+				else{
+				+tablero(celda(X,Y,Prop),e);
+				}
+				
 				delete(C,X,Y);
 				!specialExplosion(X,Y,C,T,D,A,P,L).
 
@@ -884,8 +960,8 @@ levelWinner(P1,P2,Winner) :- P1 = P2 & Winner = draw.
 			+points(L,A,P+2);
 			for( tablero(celda(X,NY,_),ficha(NC,_))){
 					!explosion(X,NY);
-					-tablero(celda(X,NY,_),_);
-					+tablero(celda(X,NY,0),e);
+					-tablero(celda(X,NY,Prop),_);
+					+tablero(celda(X,NY,Prop),e);
 					delete(NC,X,NY);
 				}.
 
@@ -894,17 +970,17 @@ levelWinner(P1,P2,Winner) :- P1 = P2 & Winner = draw.
 			+points(L,A,P+2);
 			for( tablero(celda(NX,Y,_),ficha(NC,_))){
 				 	!explosion(NX,Y);
-					-tablero(celda(NX,Y,_),_);
-					+tablero(celda(NX,Y,0),e);
+					-tablero(celda(NX,Y,Prop),_);
+					+tablero(celda(NX,Y,Prop),e);
 					delete(NC,NX,Y);
 				}.
 
-+!specialExplosion(X,Y,C,T,D,A,P,L) : T = gs & tablero(celda(NX,NY,_),ficha(C,_)) & not X=NX & not Y=NY <-	 //Explosion de una ficha del mismo color (distinta a si misma)
++!specialExplosion(X,Y,C,T,D,A,P,L) : T = gs & tablero(celda(NX,NY,Prop),ficha(C,_)) & not X=NX & not Y=NY <-	 //Explosion de una ficha del mismo color (distinta a si misma)
 			-points(L,A,P);
 			+points(L,A,P+4);
 			!explosion(NX,NY);
-			-tablero(celda(NX,NY,_),ficha(C,_));
-			+tablero(celda(NX,NY,0),e);
+			-tablero(celda(NX,NY,Prop),ficha(C,_));
+			+tablero(celda(NX,NY,Prop),e);
 			delete(C,NX,NY).
 
 +!specialExplosion(X,Y,C,T,D,A,P,L) : T = co <-  			//Explosion en cuadrado 3x3
@@ -916,20 +992,38 @@ levelWinner(P1,P2,Winner) :- P1 = P2 & Winner = draw.
 				};
 			}.
 
-+!coExplosion(X,Y) : tablero(celda(X,Y,_),ficha(C,_)) <-
++!coExplosion(X,Y) : tablero(celda(X,Y,Prop),ficha(C,_)) & turnoActual(P) & level(L) & celdas(player1,C1) & celdas(player2,C2) <-
 			  !explosion(X+I,Y+J);
 			  -tablero(celda(X,Y,_),_);
-			  +tablero(celda(X,Y,0),e);
+			  if(L=3){
+			  	if(P=player1 & (not Prop = 1)){
+					+tablero(celda(X,Y,1),e);
+					-+celdas(P,C1+1);
+					if(Prop =2){
+						-+celdas(player2,C2-1);
+					}
+				}
+				if(P=player2 & (not Prop = 2)){
+					+tablero(celda(X,Y,2),e);
+					-+celdas(P,C2+1);
+					if(Prop =1){
+						-+celdas(player1,C1-1);
+					}
+				}
+			  }
+			  else{
+			  +tablero(celda(X,Y,Prop),e);
+			  }
 			  delete(C,X,Y).
 +!coExplosion(X,Y).
 
 +!specialExplosion(X,Y,C,T,D,A,P,L) : T = ct <-     //Explosion de todas las fichas de ese color
 			-points(L,A,P);
 			+points(L,A,P+8);
-			for( tablero(celda(NX,NY,_),ficha(C,_))){
+			for( tablero(celda(NX,NY,Prop),ficha(C,_))){
 				 	!explosion(NX,NY);
-					-tablero(celda(NX,NY,_),_);
-					+tablero(celda(NX,NY,0),e);
+					-tablero(celda(NX,NY,Prop),_);
+					+tablero(celda(NX,NY,Prop),e);
 					delete(C,NX,NY);
 			}.
 
