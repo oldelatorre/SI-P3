@@ -475,8 +475,11 @@ levelWinner(P1,P2,Winner) :- P1 = P2 & Winner = draw.
 					!showPoints;
 					!cambioTurnoMismoJugador(P,N,J). //Cambio de turno sobre el mismo jugador, ya que hay un jugador descalificado
 
-+turnoTerminado(P) <-
++turnoTerminado(P) : level(L)<-
 					!showPoints;
+					if(L=3){
+					!showCeldas;
+					}
 					+cambioTurno(P). //Cambio de turno de forma normal
 
 //Mostrar Puntuaciones

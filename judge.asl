@@ -6,6 +6,12 @@
 
 jugadasRestantes(100).
 
+partidas(1).
+
+partidasGanadas(player1,0).
+partidasGanadas(player2,0).
+
+
 jugadasPlayer(player1,0).
 jugadasPlayer(player2,0).
 
@@ -255,7 +261,7 @@ levelWinner(P1,P2,Winner) :- P1 = P2 & Winner = draw.
 /* ----- Plans ----- */
 
 //Finalizacion de la partida
-+!comienzoTurno : endGame(1) & levelWinner(1,W1) & levelWinner(2,W2) & levelWinner(3,W3)<-
++!comienzoTurno : endGame(1) & levelWinner(1,W1) & levelWinner(2,W2) & levelWinner(3,W3) & partidas(P) & partidasGanadas(player1,P1) &partidaGanadas(player2,P2)<-
 		.print(" *  *  *  *  *  *  *  *  * *  RESULTADOS  * *  *  *  *  *  *  *  *  *");
 		.print(" * Ganador Nivel 1 -> ",W1);
 		.print(" * Ganador Nivel 2 -> ",W2);
@@ -265,7 +271,84 @@ levelWinner(P1,P2,Winner) :- P1 = P2 & Winner = draw.
 		.print(" *  *  *  *  *  *  *  *  * *  *  *  *  *  *  *  *  * *  *  *  *  *  *  *  *  *");
 		.print(" * Ganador de la partida -> ",FinalWinner," !!");
 		.print(" *  *  *  *  *  *  *  *  * *  *  *  *  *  *  *  *  * *  *  *  *  *  *  *  *  *");
-		.print("--- --- --- --- --- Fin del juego --- --- --- --- ---").
+		.print("--- --- --- --- --- Fin de la partida --- --- --- --- ---");
+		if(FinalWinner = player1){
+		-+partidasGanadas(player1,P1+1);
+		}
+		else{
+		-+partidasGanadas(player2,P2+1);
+		}
+		-+partidas(P+1);
+		
+		.wait(1000);
+		-+level(2);
+		-+turnoActual(player1);
+		-+jugadasRestantes(100);
+		-jugadasPlayer(player1,_);
+		+jugadasPlayer(player1,0);
+		-jugadasPlayer(player2,_);
+		+jugadasPlayer(player2,0);
+		-+partidasGanadas(player1,0);
+		-+partidasGanadas(player2,0);
+		-+level(1);
+		-+points(1,player1,0);
+		-+points(1,player2,0);
+		-+points(2,player1,0);
+		-+points(2,player2,0);
+		-+points(3,player1,0);
+		-+points(3,player2,0);
+		-+celdas(player1,50);
+		-+celdas(player2,50);
+		-+levelWinner(1,none);
+		-+levelWinner(2,none);
+		-+levelWinner(3,none);
+		-+finalWinner(none);
+		-+endGame(0);
+	   .abolish(tablero(X,Y));
+	   .wait(250);
+	   resetTablero(_);
+	   .wait(250);
+	   !generateObstacles;
+	   !updatePlayersTableroBB;
+	   !startGame.
+		
++!comienzoTurno : endGame(1) & levelWinner(1,W1) & levelWinner(2,W2) & levelWinner(3,W3) & partidas(P) & P=10 & partidasGanadas(player1,P1) &partidaGanadas(player2,P2)<-
+		.print(" *  *  *  *  *  *  *  *  * *  RESULTADOS  * *  *  *  *  *  *  *  *  *");
+		.print(" * Ganador Nivel 1 -> ",W1);
+		.print(" * Ganador Nivel 2 -> ",W2);
+		.print(" * Ganador Nivel 3 -> ",W3);
+		!checkFinalWinner(W1,W2,W3);
+		?finalWinner(FinalWinner);
+		.print(" *  *  *  *  *  *  *  *  * *  *  *  *  *  *  *  *  * *  *  *  *  *  *  *  *  *");
+		.print(" * Ganador de la partida -> ",FinalWinner," !!");
+		.print(" *  *  *  *  *  *  *  *  * *  *  *  *  *  *  *  *  * *  *  *  *  *  *  *  *  *");
+		.print("--- --- --- --- --- Fin del juego --- --- --- --- ---");
+			if(FinalWinner = player1){
+		-+partidasGanadas(player1,P1+1);
+		if((P1+1)>P2){
+			.print("Ganador del juego player1");
+		}
+		if((P1+1)<P2){
+			.print("Ganador del juego player2");
+		}
+		if(P1+1=P2){
+			.print("Empate");
+		}
+		}
+		else{
+		-+partidasGanadas(player2,P2+1);
+		if((P2+1)>P1){
+			.print("Ganador del juego player2");
+		}
+		if((P2+1)<P1){
+			.print("Ganador del juego player1");
+		}
+		if(P2+1=P1){
+			.print("Empate");
+		}
+		}
+		printf("-------------------------------------------------------").
+		
 
 //Comprobacion del ganador de la partida
 +!checkFinalWinner(W1,W2,W3) : W1=draw & W2=draw & W3=draw<- -+finalWinner(player1). //Si hay empate en ambos niveles, ganara el jugador uno por ser el que abre la partida
@@ -392,7 +475,7 @@ levelWinner(P1,P2,Winner) :- P1 = P2 & Winner = draw.
 
 
 //Gestion del comienzo del juego
-+startGame : size(N) <- //Este plan se ejecutará cuando el entorno le avise al terminar la generacion del tablero
++startGame : size(N) & partidas(P) <- //Este plan se ejecutará cuando el entorno le avise al terminar la generacion del tablero
 				.print("Tablero de juego generado!");
 				.send(player1,tell,size(N));
 				.send(player2,tell,size(N));
@@ -401,6 +484,7 @@ levelWinner(P1,P2,Winner) :- P1 = P2 & Winner = draw.
 				.wait(500);
 				!mostrarTablero(player2);
 				.print(" ----- ----- ----- ----- EMPIEZA EL JUEGO! ----- ----- ----- -----");
+				.print(" ----- ----- ----- ----- Partida: " , P ," ----- ----- ----- -----");
 				.print("                ----- ----- ----- NIVEL 1 ----- ----- -----\n");
 				!comienzoTurno.
 
@@ -550,10 +634,10 @@ levelWinner(P1,P2,Winner) :- P1 = P2 & Winner = draw.
 //Movimiento correcto
 +intercambiarFichas(X1,Y1,Dir,P) : nextPosition(X1,Y1,Dir,X2,Y2) & plNumb(P,PlNumb) <-
 								-+direction(Dir);
-								-tablero(celda(X1,Y1,0),ficha(C1,TipoFicha1));
-								-tablero(celda(X2,Y2,0),ficha(C2,TipoFicha2));
-								+tablero(celda(X2,Y2,0),ficha(C1,TipoFicha1));
-								+tablero(celda(X1,Y1,0),ficha(C2,TipoFicha2));
+								-tablero(celda(X1,Y1,Prop),ficha(C1,TipoFicha1));
+								-tablero(celda(X2,Y2,Prop2),ficha(C2,TipoFicha2));
+								+tablero(celda(X2,Y2,Prop),ficha(C1,TipoFicha1));
+								+tablero(celda(X1,Y1,Prop2),ficha(C2,TipoFicha2));
 								exchange(C1,X1,Y1,C2,X2,Y2); //Intercambio de fichas en el tablero grafico
 								.print("Se han intercambiado las fichas entre las posiciones (",X1,",",Y1,") y (",X2,",",Y2,")");
 								//.wait(250); //Ajusta la velocidad del intercambio de fichas

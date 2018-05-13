@@ -130,13 +130,19 @@ public class Tablero extends Environment {
             steakType[i][j]="in";
             set(color,i,j);
             int judgeColor = getJudgeColor(color);
-            addPercept("judge",Literal.parseLiteral("addTablero(celda(" + i + "," + j + ","+prop+"),ficha(" + judgeColor + ",in))")); //Envio de la informacion correspondiente a la generacion de una posicion del tablero
+			if(prop==1){
+			  addPercept("judge",Literal.parseLiteral("addTablero(celda(" + i + "," + j + ",1),ficha(" + judgeColor + ",in))")); //Envio de la informacion correspondiente a la generacion de una posicion del tablero
+			}
+			else{
+			 addPercept("judge",Literal.parseLiteral("addTablero(celda(" + i + "," + j + ",2),ficha(" + judgeColor + ",in))")); //Envio de la informacion correspondiente a la generacion de una posicion del tablero
+
+			}
             if (color < 512) {color = color * 2;}
             else {color = 16;};
           };
           if (color < 512) {color = color * 2;}
           else {color = 16;};
-		  if(prop ==1){prop=0;}
+		  if(prop ==1){prop=2;}
 		  else prop=1;
         };
       }
